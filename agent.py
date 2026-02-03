@@ -19,6 +19,7 @@ class Agent:
         self.decisionModelLookaheadDiscount = configuration["decisionModelLookaheadDiscount"]
         self.decisionModelLookaheadFactor = configuration["decisionModelLookaheadFactor"]
         self.decisionModelRacismFactor = configuration["decisionModelRacismFactor"]
+        self.decisionModelSexismFactor = configuration["decisionModelSexismFactor"]
         self.decisionModelTribalFactor = configuration["decisionModelTribalFactor"]
         self.depressionFactor = configuration["depressionFactor"]
         self.diseaseProtectionChance = configuration["diseaseProtectionChance"]
@@ -807,6 +808,7 @@ class Agent:
         "decisionModelLookaheadDiscount": [self.decisionModelLookaheadDiscount, mate.decisionModelLookaheadDiscount],
         "decisionModelLookaheadFactor": [self.decisionModelLookaheadFactor, mate.decisionModelLookaheadFactor],
         "decisionModelRacismFactor": [self.decisionModelRacismFactor, mate.decisionModelRacismFactor],
+        "decisionModelSexismFactor": [self.decisionModelSexismFactor, mate.decisionModelSexismFactor],
         "decisionModelTribalFactor": [self.decisionModelTribalFactor, mate.decisionModelTribalFactor],
         "dynamicSelfishnessFactor": [self.dynamicSelfishnessFactor, mate.dynamicSelfishnessFactor],
         "dynamicTemperanceFactor" : [self.dynamicTemperanceFactor, mate.dynamicTemperanceFactor],
@@ -953,11 +955,14 @@ class Agent:
         potentialNeighbors = cell.findNeighborAgents()
         modifier = 1
         if len(potentialNeighbors) > 0:
-            inGroupRace, inGroupTribe = 0, 0
+            inGroupRace, inGroupSex, inGroupTribe = 0, 0, 0
             for neighbor in potentialNeighbors:
                 neighborRace = neighbor.findRace()
                 if neighborRace == self.findRace() or neighborRace in self.inGroupRaces:
                     inGroupRace += 1
+                neighborSex = neighbor.sex
+                if neighborSex == self.sex:
+                    inGroupSex += 1
                 neighborTribe = neighbor.findTribe()
                 if neighborTribe == self.findTribe():
                     inGroupTribe += 1
@@ -965,6 +970,9 @@ class Agent:
             if self.decisionModelRacismFactor > 0:
                 raceProportion = inGroupRace / len(potentialNeighbors)
                 modifier *= (1 + (self.decisionModelRacismFactor * raceProportion))
+            if self.decisionModelSexismFactor > 0:
+                sexProportion = inGroupSex / len(potentialNeighbors)
+                modifier *= (1 + (self.decisionModelSexismFactor * sexProportion))
             if self.decisionModelTribalFactor > 0:
                 tribeProportion = inGroupTribe / len(potentialNeighbors)
                 modifier *= (1 + (self.decisionModelTribalFactor * tribeProportion))
@@ -1368,7 +1376,7 @@ class Agent:
             # Modify value of cell relative to the metabolism needs of the agent
             welfare = self.findWelfare(((cell.sugar + welfarePreySugar) / (1 + cell.pollution)), ((cell.spice + welfarePreySpice) / (1 + cell.pollution)))
 
-            if self.decisionModelRacismFactor >= 0 or self.decisionModelTribalFactor >= 0:
+            if self.decisionModelRacismFactor >= 0 or self.decisionModelSexismFactor >= 0 or self.decisionModelTribalFactor >= 0:
                 # modify welfare according to group preferences
                 welfare *= self.findGroupBiasCellWelfareModifier(cell)
 
