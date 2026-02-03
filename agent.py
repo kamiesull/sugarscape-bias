@@ -1,4 +1,3 @@
-from collections import Counter
 import hashlib
 import math
 import random
@@ -1060,7 +1059,7 @@ class Agent:
         if self.racialTags == None:
             return None
         # race is determined by most common element in racialTags
-        return Counter(self.racialTags).most_common(1)[0][0]
+        return max(set(self.racialTags), key=self.racialTags.count)
 
     def findRetaliatorsInVision(self):
         retaliators = {}
