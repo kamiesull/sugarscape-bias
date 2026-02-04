@@ -46,6 +46,7 @@
         "agentRacialTagStringLength": 11,
         "agentReplacements": 0,
         "agentSelfishnessFactor": [-1, -1],
+        "agentSexistGroups": ["female", "male"],
         "agentSpiceMetabolism": [1, 4],
         "agentStartingSpice": [10, 40],
         "agentStartingSugar": [10, 40],

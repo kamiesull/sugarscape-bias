@@ -576,6 +576,7 @@ class Sugarscape:
         movementMode = configs["agentMovementMode"]
         neighborhoodMode = configs["neighborhoodMode"]
         selfishnessFactor = configs["agentSelfishnessFactor"]
+        sexistGroups = configs["agentSexistGroups"]
         spiceMetabolism = configs["agentSpiceMetabolism"]
         startingSpice = configs["agentStartingSpice"]
         startingSugar = configs["agentStartingSugar"]
@@ -701,7 +702,7 @@ class Sugarscape:
         random.shuffle(decisionModels)
         for i in range(numAgents):
             agentEndowment = {"seed": self.seed, "sex": sexes[i], "racialTags": racialTags.pop(), "tags": tags.pop(), "tagPreferences": tagPreferences, "tagging": tagging,
-                              "immuneSystem": immuneSystems.pop(), "inGroupRaces": inGroupRaces, "inheritancePolicy": inheritancePolicy,
+                              "immuneSystem": immuneSystems.pop(), "inGroupRaces": inGroupRaces, "sexistGroups": sexistGroups, "inheritancePolicy": inheritancePolicy,
                               "decisionModel": decisionModels.pop(), "decisionModelLookaheadFactor": decisionModelLookaheadFactor,
                               "movementMode": movementMode, "neighborhoodMode": neighborhoodMode, "visionMode": visionMode,
                               "depressionFactor": depressionFactors[i], "follower": follower}
@@ -1785,6 +1786,7 @@ if __name__ == "__main__":
                      "agentRacialTagStringLength": 0,
                      "agentReplacements": 0,
                      "agentSelfishnessFactor": [-1, -1],
+                     "agentSexistGroups": ["female", "male"],
                      "agentSpiceMetabolism": [0, 0],
                      "agentStartingSpice": [0, 0],
                      "agentStartingSugar": [10, 40],

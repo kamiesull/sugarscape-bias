@@ -44,6 +44,7 @@ class Agent:
         self.seed = configuration["seed"]
         self.selfishnessFactor = configuration["selfishnessFactor"]
         self.sex = configuration["sex"]
+        self.sexistGroups = configuration["sexistGroups"]
         self.spice = configuration["spice"]
         self.spiceMetabolism = configuration["spiceMetabolism"]
         self.startingImmuneSystem = configuration["immuneSystem"]
@@ -814,7 +815,7 @@ class Agent:
         "selfishnessFactor" : [self.selfishnessFactor, mate.selfishnessFactor],
         "temperanceFactor" : [self.temperanceFactor, mate.temperanceFactor]
         }
-        childEndowment = {"seed": self.seed, "follower": self.follower, "inGroupRaces": self.inGroupRaces}
+        childEndowment = {"seed": self.seed, "follower": self.follower, "inGroupRaces": self.inGroupRaces, "sexistGroups": self.sexistGroups}
         randomNumberReset = random.getstate()
 
         # Map configuration to a random number via hash to make random number generation independent of iteration order
@@ -969,7 +970,7 @@ class Agent:
             if self.decisionModelRacismFactor > 0:
                 raceProportion = inGroupRace / len(potentialNeighbors)
                 modifier *= (1 + (self.decisionModelRacismFactor * raceProportion))
-            if self.decisionModelSexismFactor > 0:
+            if self.sex in self.sexistGroups and self.decisionModelSexismFactor > 0:
                 sexProportion = inGroupSex / len(potentialNeighbors)
                 modifier *= (1 + (self.decisionModelSexismFactor * sexProportion))
             if self.decisionModelTribalFactor > 0:
@@ -1375,7 +1376,9 @@ class Agent:
             # Modify value of cell relative to the metabolism needs of the agent
             welfare = self.findWelfare(((cell.sugar + welfarePreySugar) / (1 + cell.pollution)), ((cell.spice + welfarePreySpice) / (1 + cell.pollution)))
 
-            if self.decisionModelRacismFactor >= 0 or self.decisionModelSexismFactor >= 0 or self.decisionModelTribalFactor >= 0:
+            if (self.decisionModelRacismFactor >= 0
+                or (self.sex in self.sexistGroups and self.decisionModelSexismFactor >= 0)
+                or self.decisionModelTribalFactor >= 0):
                 # modify welfare according to group preferences
                 welfare *= self.findGroupBiasCellWelfareModifier(cell)
 
