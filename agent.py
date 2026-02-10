@@ -30,7 +30,6 @@ class Agent:
         self.leader = not self.follower
         self.immuneSystem = configuration["immuneSystem"]
         self.infertilityAge = configuration["infertilityAge"]
-        self.inGroupRaces = configuration["inGroupRaces"]
         self.inheritancePolicy = configuration["inheritancePolicy"]
         self.lendingFactor = configuration["lendingFactor"]
         self.loanDuration = configuration["loanDuration"]
@@ -815,7 +814,7 @@ class Agent:
         "selfishnessFactor" : [self.selfishnessFactor, mate.selfishnessFactor],
         "temperanceFactor" : [self.temperanceFactor, mate.temperanceFactor]
         }
-        childEndowment = {"seed": self.seed, "follower": self.follower, "inGroupRaces": self.inGroupRaces, "sexistGroups": self.sexistGroups}
+        childEndowment = {"seed": self.seed, "follower": self.follower}
         randomNumberReset = random.getstate()
 
         # Map configuration to a random number via hash to make random number generation independent of iteration order
@@ -958,7 +957,7 @@ class Agent:
             inGroupRace, inGroupSex, inGroupTribe = 0, 0, 0
             for neighbor in potentialNeighbors:
                 neighborRace = neighbor.findRace()
-                if neighborRace == self.findRace() or neighborRace in self.inGroupRaces:
+                if neighborRace == self.findRace() or neighborRace in self.cell.environment.inGroupRaces:
                     inGroupRace += 1
                 neighborSex = neighbor.sex
                 if neighborSex == self.sex:
@@ -966,7 +965,7 @@ class Agent:
                 neighborTribe = neighbor.findTribe()
                 if neighborTribe == self.findTribe():
                     inGroupTribe += 1
-            # increase value of cell according to proportion of in-group neighbors
+            # Increase value of cell according to proportion of in-group neighbors
             if self.decisionModelRacismFactor > 0:
                 raceProportion = inGroupRace / len(potentialNeighbors)
                 modifier *= (1 + (self.decisionModelRacismFactor * raceProportion) + ((1 - self.decisionModelRacismFactor) * (1 - raceProportion)))
@@ -1059,7 +1058,7 @@ class Agent:
     def findRace(self):
         if self.racialTags == None:
             return None
-        # race is determined by most common element in racialTags
+        # Race is determined by most common element in racialTags
         return max(set(self.racialTags), key=self.racialTags.count)
 
     def findRetaliatorsInVision(self):
@@ -1379,7 +1378,7 @@ class Agent:
             if (self.decisionModelRacismFactor >= 0
                 or (self.sex in self.sexistGroups and self.decisionModelSexismFactor >= 0)
                 or self.decisionModelTribalFactor >= 0):
-                # modify welfare according to group preferences
+                # Modify welfare according to group preferences
                 welfare *= self.findGroupBiasCellWelfareModifier(cell)
 
             # Avoid attacking agents protected via retaliation

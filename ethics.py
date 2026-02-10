@@ -175,7 +175,7 @@ class Bentham(agent.Agent):
 
             if self.decisionModelRacismFactor >= 0:
                 neighborRace = neighbor.findRace()
-                if neighborRace == self.race or neighborRace in self.inGroupRaces:
+                if neighborRace == self.race or neighborRace in self.cell.environment.inGroupRaces:
                     # If same race or in-group race, multiply by racism factor
                     neighborCellValue *= self.decisionModelRacismFactor
                 else:
@@ -209,10 +209,6 @@ class Bentham(agent.Agent):
         if self.selfishnessFactor < 0:
             return {"happiness": happiness, "unhappiness": unhappiness}
         return cellValue
-
-    def findGroupBiasCellWelfareModifier(self, cell):
-        # Bentham class handles group bias in findEthicalValueOfCell
-        return 1
 
     def updateValues(self):
         if self.dynamicSelfishnessFactor != 0:
