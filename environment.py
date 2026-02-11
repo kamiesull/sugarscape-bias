@@ -11,8 +11,8 @@ class Environment:
         self.equator = configuration["equator"] if configuration["equator"] >= 0 else math.ceil(self.height / 2)
         self.globalMaxSpice = configuration["globalMaxSpice"]
         self.globalMaxSugar = configuration["globalMaxSugar"]
-        self.inGroupAgeCutoff = configuration["inGroupAgeCutoff"]
-        self.inGroupAgeWindow = configuration["inGroupAgeWindow"]
+        self.inGroupAgeAbsoluteRange = configuration["inGroupAgeAbsoluteRange"]
+        self.inGroupAgeRelativeWindow = configuration["inGroupAgeRelativeWindow"]
         self.inGroupRaces = configuration["inGroupRaces"]
         self.maxCombatLoot = configuration["maxCombatLoot"]
         self.neighborhoodMode = configuration["neighborhoodMode"]

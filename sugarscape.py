@@ -27,8 +27,8 @@ class Sugarscape:
                                     "equator": configuration["environmentEquator"],
                                     "globalMaxSpice": configuration["environmentMaxSpice"],
                                     "globalMaxSugar": configuration["environmentMaxSugar"],
-                                    "inGroupAgeCutoff": configuration["environmentInGroupAgeCutoff"],
-                                    "inGroupAgeWindow": configuration["environmentInGroupAgeWindow"],
+                                    "inGroupAgeAbsoluteRange": configuration["environmentInGroupAgeAbsoluteRange"],
+                                    "inGroupAgeRelativeWindow": configuration["environmentInGroupAgeRelativeWindow"],
                                     "inGroupRaces": configuration["environmentInGroupRaces"],
                                     "maxCombatLoot": configuration["environmentMaxCombatLoot"],
                                     "neighborhoodMode": configuration["neighborhoodMode"],
@@ -1486,7 +1486,7 @@ def verifyConfiguration(configuration):
     negativesAllowed = ["agentDecisionModelAgeismFactor", "agentDecisionModelRacismFactor", "agentDecisionModelSexismFactor", "agentDecisionModelTribalFactor", "agentMaxAge", "agentSelfishnessFactor"]
     negativesAllowed += ["diseaseAggressionPenalty", "diseaseFertilityPenalty", "diseaseFriendlinessPenalty", "diseaseHappinessPenalty", "diseaseMovementPenalty"]
     negativesAllowed += ["diseaseSpiceMetabolismPenalty", "diseaseSugarMetabolismPenalty", "diseaseTimeframe", "diseaseVisionPenalty"]
-    negativesAllowed += ["environmentInGroupAgeCutoff", "environmentEquator", "environmentPollutionDiffusionTimeframe", "environmentPollutionTimeframe", "environmentMaxSpice", "environmentMaxSugar"]
+    negativesAllowed += ["environmentInGroupAgeAbsoluteRange", "environmentEquator", "environmentPollutionDiffusionTimeframe", "environmentPollutionTimeframe", "environmentMaxSpice", "environmentMaxSugar"]
     negativesAllowed += ["interfaceHeight", "interfaceWidth", "seed", "timesteps"]
     timeframes = ["diseaseTimeframe", "environmentPollutionDiffusionTimeframe", "environmentPollutionTimeframe"]
     negativeFlag = 0
@@ -1702,22 +1702,22 @@ def verifyConfiguration(configuration):
             print(f"Cannot provide {configuration['environmentMaxTribes']} tribes. Allocating maximum of {maxColors}.")
         configuration["environmentMaxTribes"] = maxColors
 
-    # Ensure no negative value for environmentInGroupAgeCutoff
-    if configuration["environmentInGroupAgeCutoff"][0] < 0:
-        if configuration["environmentInGroupAgeCutoff"][1] != -1:
+    # Ensure no negative value for environmentInGroupAgeAbsoluteRange
+    if configuration["environmentInGroupAgeAbsoluteRange"][0] < 0:
+        if configuration["environmentInGroupAgeAbsoluteRange"][1] != -1:
             if "all" in configuration["debugMode"] or "environment" in configuration["debugMode"]:
                 print(
-                    f"Cannot have environment in-group age cutoff range of {configuration['environmentInGroupAgeCutoff']}. Disabling environment in-group age cutoff.")
-        configuration["environmentInGroupAgeCutoff"] = [-1, -1]
+                    f"Cannot have environment in-group age cutoff range of {configuration['environmentInGroupAgeAbsoluteRange']}. Disabling environment in-group age cutoff.")
+        configuration["environmentInGroupAgeAbsoluteRange"] = [-1, -1]
 
-    # Ensure no negative value for environmentInGroupAgeWindow
-    if configuration["environmentInGroupAgeWindow"] < 0:
+    # Ensure no negative value for environmentInGroupAgeRelativeWindow
+    if configuration["environmentInGroupAgeRelativeWindow"] < 0:
         if "all" in configuration["debugMode"] or "environment" in configuration["debugMode"]:
-            print(f"Cannot have negative environmentInGroupAgeWindow. Setting environmentInGroupAgeWindow to 0")
-        configuration["environmentInGroupAgeWindow"] = 0
+            print(f"Cannot have negative environmentInGroupAgeRelativeWindow. Setting environmentInGroupAgeRelativeWindow to 0")
+        configuration["environmentInGroupAgeRelativeWindow"] = 0
     
-    # If both environmentInGroupAgeCutoff and environmentInGroupAgeWindow are disabled, ageism must be disabled since there is no mechanism for determining in-grouping
-    if configuration["environmentInGroupAgeCutoff"] == [-1, -1] and configuration["environmentInGroupAgeWindow"] == 0 and configuration["agentDecisionModelAgeismFactor"] != [-1, -1]:
+    # If both environmentInGroupAgeAbsoluteRange and environmentInGroupAgeRelativeWindow are disabled, ageism must be disabled since there is no mechanism for determining in-grouping
+    if configuration["environmentInGroupAgeAbsoluteRange"] == [-1, -1] and configuration["environmentInGroupAgeRelativeWindow"] == 0 and configuration["agentDecisionModelAgeismFactor"] != [-1, -1]:
         if "all" in configuration["debugMode"] or "agent" in configuration["debugMode"]:
             print(f"Cannot have ageism without in-grouping. Disabling agentDecisionModelAgeismFactor")
         configuration["agentDecisionModelAgeismFactor"] = [-1, -1]
@@ -1854,8 +1854,8 @@ if __name__ == "__main__":
                      "environmentEquator": -1,
                      "environmentFile": None,
                      "environmentHeight": 50,
-                     "environmentInGroupAgeCutoff": [-1, -1],
-                     "environmentInGroupAgeWindow": 0,
+                     "environmentInGroupAgeAbsoluteRange": [-1, -1],
+                     "environmentInGroupAgeRelativeWindow": 0,
                      "environmentInGroupRaces": [],
                      "environmentMaxCombatLoot": 0,
                      "environmentMaxRaces": 0,
