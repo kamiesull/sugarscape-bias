@@ -421,7 +421,7 @@ environmentInGroupAgeAbsoluteRange: [int, int]
     Note: If disabled with -1, agents will only use environmentInGroupAgeRelativeWindow to determine age grouping of other agents.
     Default: [-1, -1]
 
-environmentInGroupAgeRelativeWindow: int
+environmentInGroupAgeRelativeWindow: [int, ...]
     Set a range where agents with age within +/- of this variable are considered in-group for age, even if outside of environmentInGroupAgeAbsoluteRange.
     Default: 0
 
