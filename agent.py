@@ -14,6 +14,7 @@ class Agent:
         self.aggressionFactor = configuration["aggressionFactor"]
         self.baseInterestRate = configuration["baseInterestRate"]
         self.decisionModel = configuration["decisionModel"]
+        self.decisionModelAgeismFactor = configuration["decisionModelAgeismFactor"]
         self.decisionModelFactor = configuration["decisionModelFactor"]
         self.decisionModelLookaheadDiscount = configuration["decisionModelLookaheadDiscount"]
         self.decisionModelLookaheadFactor = configuration["decisionModelLookaheadFactor"]
@@ -802,6 +803,7 @@ class Agent:
         # These endowments should always come from the same parent for sensible outcomes
         pairedEndowments = {
         "decisionModel": [self.decisionModel, mate.decisionModel],
+        "decisionModelAgeismFactor": [self.decisionModelAgeismFactor, mate.decisionModelAgeismFactor],
         "decisionModelFactor": [self.decisionModelFactor, mate.decisionModelFactor],
         "decisionModelLookaheadDiscount": [self.decisionModelLookaheadDiscount, mate.decisionModelLookaheadDiscount],
         "decisionModelLookaheadFactor": [self.decisionModelLookaheadFactor, mate.decisionModelLookaheadFactor],

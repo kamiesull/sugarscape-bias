@@ -550,6 +550,7 @@ class Sugarscape:
         configs = self.configuration
         aggressionFactor = configs["agentAggressionFactor"]
         baseInterestRate = configs["agentBaseInterestRate"]
+        decisionModelAgeismFactor = configs["agentDecisionModelAgeismFactor"]
         decisionModelFactor = configs["agentDecisionModelFactor"]
         decisionModelLookaheadDiscount = configs["agentDecisionModelLookaheadDiscount"]
         decisionModelLookaheadFactor = configs["agentDecisionModelLookaheadFactor"]
@@ -596,6 +597,7 @@ class Sugarscape:
 
         configurations = {"aggressionFactor": {"endowments": [], "curr": aggressionFactor[0], "min": aggressionFactor[0], "max": aggressionFactor[1]},
                           "baseInterestRate": {"endowments": [], "curr": baseInterestRate[0], "min": baseInterestRate[0], "max": baseInterestRate[1]},
+                          "decisionModelAgeismFactor": {"endowments": [], "curr": decisionModelAgeismFactor[0], "min": decisionModelAgeismFactor[0], "max": decisionModelAgeismFactor[1]},
                           "decisionModelFactor": {"endowments": [], "curr": decisionModelFactor[0], "min": decisionModelFactor[0], "max": decisionModelFactor[1]},
                           "decisionModelLookaheadDiscount": {"endowments": [], "curr": decisionModelLookaheadDiscount[0], "min": decisionModelLookaheadDiscount[0], "max": decisionModelLookaheadDiscount[1]},
                           "decisionModelRacismFactor": {"endowments": [], "curr": decisionModelRacismFactor[0], "min": decisionModelRacismFactor[0], "max": decisionModelRacismFactor[1]},
@@ -1478,7 +1480,7 @@ def sortConfigurationTimeframes(configuration, timeframe):
     return config
 
 def verifyConfiguration(configuration):
-    negativesAllowed = ["agentDecisionModelRacismFactor", "agentDecisionModelSexismFactor", "agentDecisionModelTribalFactor", "agentMaxAge", "agentSelfishnessFactor"]
+    negativesAllowed = ["agentDecisionModelAgeismFactor", "agentDecisionModelRacismFactor", "agentDecisionModelSexismFactor", "agentDecisionModelTribalFactor", "agentMaxAge", "agentSelfishnessFactor"]
     negativesAllowed += ["diseaseAggressionPenalty", "diseaseFertilityPenalty", "diseaseFriendlinessPenalty", "diseaseHappinessPenalty", "diseaseMovementPenalty"]
     negativesAllowed += ["diseaseSpiceMetabolismPenalty", "diseaseSugarMetabolismPenalty", "diseaseTimeframe", "diseaseVisionPenalty"]
     negativesAllowed += ["environmentEquator", "environmentPollutionDiffusionTimeframe", "environmentPollutionTimeframe", "environmentMaxSpice", "environmentMaxSugar"]
@@ -1566,6 +1568,18 @@ def verifyConfiguration(configuration):
         configuration["timesteps"] = sys.maxsize
 
     # Ensure infinitely-lived agents are properly initialized
+    if configuration["agentDecisionModelAgeismFactor"][0] < 0:
+        if configuration["agentDecisionModelAgeismFactor"][1] != -1:
+            if "all" in configuration["debugMode"] or "agent" in configuration["debugMode"]:
+                print(
+                    f"Cannot have agent ageism factor range of {configuration['agentDecisionModelAgeismFactor']}. Disabling agent ageism factor.")
+        configuration["agentDecisionModelAgeismFactor"] = [-1, -1]
+    elif configuration["agentDecisionModelAgeismFactor"][1] > 1:
+        if "all" in configuration["debugMode"] or "agent" in configuration["debugMode"]:
+            print(
+                f"Cannot have agent maximum ageism factor of {configuration['agentDecisionModelAgeismFactor'][1]}. Setting agent maximum ageism factor to 1.0.")
+        configuration["agentDecisionModelAgeismFactor"][1] = 1
+
     if configuration["agentDecisionModelRacismFactor"][0] < 0:
         if configuration["agentDecisionModelRacismFactor"][1] != -1:
             if "all" in configuration["debugMode"] or "agent" in configuration["debugMode"]:
@@ -1755,6 +1769,7 @@ if __name__ == "__main__":
                      "agentBaseInterestRate": [0.0, 0.0],
                      "agentDecisionModels": ["none"],
                      "agentDecisionModel": None,
+                     "agentDecisionModelAgeismFactor": [-1, -1],
                      "agentDecisionModelFactor": [0, 0],
                      "agentDecisionModelLookaheadDiscount": [0, 0],
                      "agentDecisionModelLookaheadFactor": [0],

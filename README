@@ -132,6 +132,11 @@ agentBaseInterestRate: [float, float]
     Set the interest rate for an agent's lending as a percentage.
     Default: [0.0, 0.0]
 
+agentDecisionModelAgeismFactor: [float, float]
+    Set how much agents prioritize the welfare of agents close in age over agents farther in age.
+    Note: Valid range is [0.0, 1.0], use -1 to disable.
+    Default: [-1, -1]
+
 agentDecisionModelLookaheadDiscount: [float, float]
     Set the agent's discount applied to considering possible rewards in future timesteps.
     Note: This feature is used in agent decision models besides the "none" and "rawSugarscape" models.
