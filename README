@@ -410,6 +410,10 @@ environmentHeight: int
     Set the height in cells of the Sugarscape environment.
     Default: 50
 
+environmentInGroupAgeWindow: [int, ...]
+    Set a range where agents with age within +/- of this variable are considered in-group for age.
+    Default: 0
+
 environmentInGroupRaces: [int, ...]
     Set which races are treated as in-group and do not experience racism from other agents.
     Note: Including all races neutralizes racism.

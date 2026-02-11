@@ -26,6 +26,7 @@ class Sugarscape:
         environmentConfiguration = {"equator": configuration["environmentEquator"],
                                     "globalMaxSpice": configuration["environmentMaxSpice"],
                                     "globalMaxSugar": configuration["environmentMaxSugar"],
+                                    "inGroupAgeWindow": configuration["environmentInGroupAgeWindow"],
                                     "inGroupRaces": configuration["environmentInGroupRaces"],
                                     "maxCombatLoot": configuration["environmentMaxCombatLoot"],
                                     "neighborhoodMode": configuration["neighborhoodMode"],
@@ -1699,6 +1700,12 @@ def verifyConfiguration(configuration):
             print(f"Cannot provide {configuration['environmentMaxTribes']} tribes. Allocating maximum of {maxColors}.")
         configuration["environmentMaxTribes"] = maxColors
 
+    # Ensure no negative value for environmentInGroupAgeWindow
+    if configuration["environmentInGroupAgeWindow"] < 0:
+        if "all" in configuration["debugMode"] or "environment" in configuration["debugMode"]:
+            print(f"Cannot have negative environmentInGroupAgeWindow. Setting environmentInGroupAgeWindow to 0")
+        configuration["environmentInGroupAgeWindow"] = 0
+    
     # Ensure that no race in environmentInGroupRaces is greater than environmentMaxRaces
     if any(race >= configuration["environmentMaxRaces"] for race in configuration["environmentInGroupRaces"]):
         if "all" in configuration["debugMode"] or "agent" in configuration["debugMode"]:
@@ -1830,6 +1837,7 @@ if __name__ == "__main__":
                      "environmentEquator": -1,
                      "environmentFile": None,
                      "environmentHeight": 50,
+                     "environmentInGroupAgeWindow": 0,
                      "environmentInGroupRaces": [],
                      "environmentMaxCombatLoot": 0,
                      "environmentMaxRaces": 0,

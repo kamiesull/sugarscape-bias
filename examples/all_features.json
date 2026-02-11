@@ -60,6 +60,7 @@
     "diseaseVisionPenalty": [-1, 1],
     "environmentEquator": -1,
     "environmentHeight": 50,
+    "environmentInGroupAgeWindow": 10,
     "environmentInGroupRaces": [0],
     "environmentMaxCombatLoot": 2,
     "environmentMaxRaces": 3,
