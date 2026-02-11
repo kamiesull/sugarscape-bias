@@ -61,6 +61,7 @@
     "environmentAgeismDirection": ["older", "younger"],
     "environmentEquator": -1,
     "environmentHeight": 50,
+    "environmentInGroupAgeCutoff": [25, 50],
     "environmentInGroupAgeWindow": 10,
     "environmentInGroupRaces": [0],
     "environmentMaxCombatLoot": 2,
