@@ -87,7 +87,7 @@
         "environmentQuadrantSizeFactor": 1,
         "environmentSeasonalGrowbackDelay": 0,
         "environmentSeasonInterval": 0,
-        "environmentSexistGroups": ["male"],
+        "environmentSexistGroups": ["female", "male"],
         "environmentSpiceConsumptionPollutionFactor": 0,
         "environmentSpicePeaks": [[15, 15, 4], [35, 35, 4]],
         "environmentSpiceProductionPollutionFactor": 0,
