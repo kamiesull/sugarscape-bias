@@ -423,7 +423,8 @@ environmentInGroupAgeAbsoluteRange: [int, int]
 
 environmentInGroupAgeRelativeWindow: int
     Set a range where agents with age within +/- of this variable are considered in-group for age, even if outside of environmentInGroupAgeAbsoluteRange.
-    Default: 0
+    Note: Use -1 to disable. If disabled, agents will only use environmentInGroupAgeAbsoluteRange to determine age grouping of other agents.
+    Default: -1
 
 environmentInGroupRaces: [int, ...]
     Set which races are treated as in-group and do not experience racism from other agents.
