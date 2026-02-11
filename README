@@ -397,6 +397,11 @@ diseaseVisionPenalty: [int, int]
     Note: Negative values constitute a decrease in agent vision.
     Default: [0, 0]
 
+environmentAgeismDirection: [string, ...]
+    Set the directionality of ageism to older, younger, or both.
+    Note: Empty array disables ageism.
+    Default: ["older", "younger"]
+
 environmentEquator: int
     Set the equator of the environment for seasonal changes.
     Note: Value of -1 causes equator to be set at the midpoint of the environment.
