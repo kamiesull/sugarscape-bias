@@ -955,8 +955,11 @@ class Agent:
         potentialNeighbors = cell.findNeighborAgents()
         modifier = 1
         if len(potentialNeighbors) > 0:
-            inGroupRace, inGroupSex, inGroupTribe = 0, 0, 0
+            inGroupAge, inGroupRace, inGroupSex, inGroupTribe = 0, 0, 0, 0
             for neighbor in potentialNeighbors:
+                neighborAge = neighbor.age
+                if neighborAge 
+                
                 neighborRace = neighbor.findRace()
                 if neighborRace == self.findRace() or neighborRace in self.cell.environment.inGroupRaces:
                     inGroupRace += 1
