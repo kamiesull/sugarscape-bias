@@ -43,7 +43,6 @@ class Agent:
         self.seed = configuration["seed"]
         self.selfishnessFactor = configuration["selfishnessFactor"]
         self.sex = configuration["sex"]
-        self.sexistGroups = configuration["sexistGroups"]
         self.spice = configuration["spice"]
         self.spiceMetabolism = configuration["spiceMetabolism"]
         self.startingImmuneSystem = configuration["immuneSystem"]
@@ -969,7 +968,7 @@ class Agent:
             if self.decisionModelRacismFactor > 0:
                 raceProportion = inGroupRace / len(potentialNeighbors)
                 modifier *= (1 + (self.decisionModelRacismFactor * raceProportion) + ((1 - self.decisionModelRacismFactor) * (1 - raceProportion)))
-            if self.sex in self.sexistGroups and self.decisionModelSexismFactor > 0:
+            if self.sex in self.cell.environment.sexistGroups and self.decisionModelSexismFactor > 0:
                 sexProportion = inGroupSex / len(potentialNeighbors)
                 modifier *= (1 + (self.decisionModelSexismFactor * sexProportion) + ((1 - self.decisionModelSexismFactor) * (1 - sexProportion)))
             if self.decisionModelTribalFactor > 0:
@@ -1376,7 +1375,7 @@ class Agent:
             welfare = self.findWelfare(((cell.sugar + welfarePreySugar) / (1 + cell.pollution)), ((cell.spice + welfarePreySpice) / (1 + cell.pollution)))
 
             if (self.decisionModelRacismFactor >= 0
-                or (self.sex in self.sexistGroups and self.decisionModelSexismFactor >= 0)
+                or (self.sex in self.cell.environment.sexistGroups and self.decisionModelSexismFactor >= 0)
                 or self.decisionModelTribalFactor >= 0):
                 # Modify welfare according to group preferences
                 welfare *= self.findGroupBiasCellWelfareModifier(cell)

@@ -34,6 +34,7 @@ class Sugarscape:
                                     "pollutionTimeframe": configuration["environmentPollutionTimeframe"],
                                     "seasonalGrowbackDelay": configuration["environmentSeasonalGrowbackDelay"],
                                     "seasonInterval": configuration["environmentSeasonInterval"],
+                                    "sexistGroups": configuration["environmentSexistGroups"],
                                     "spiceConsumptionPollutionFactor": configuration["environmentSpiceConsumptionPollutionFactor"],
                                     "spiceProductionPollutionFactor": configuration["environmentSpiceProductionPollutionFactor"],
                                     "spiceRegrowRate": configuration["environmentSpiceRegrowRate"],
@@ -576,7 +577,6 @@ class Sugarscape:
         movementMode = configs["agentMovementMode"]
         neighborhoodMode = configs["neighborhoodMode"]
         selfishnessFactor = configs["agentSelfishnessFactor"]
-        sexistGroups = configs["agentSexistGroups"]
         spiceMetabolism = configs["agentSpiceMetabolism"]
         startingSpice = configs["agentStartingSpice"]
         startingSugar = configs["agentStartingSugar"]
@@ -1785,7 +1785,6 @@ if __name__ == "__main__":
                      "agentRacialTagStringLength": 0,
                      "agentReplacements": 0,
                      "agentSelfishnessFactor": [-1, -1],
-                     "agentSexistGroups": ["female", "male"],
                      "agentSpiceMetabolism": [0, 0],
                      "agentStartingSpice": [0, 0],
                      "agentStartingSugar": [10, 40],
@@ -1828,6 +1827,7 @@ if __name__ == "__main__":
                      "environmentQuadrantSizeFactor": 1,
                      "environmentSeasonalGrowbackDelay": 0,
                      "environmentSeasonInterval": 0,
+                     "environmentSexistGroups": ["female", "male"],
                      "environmentSpiceConsumptionPollutionFactor": 0,
                      "environmentSpicePeaks": [[35, 35, 4], [15, 15, 4]],
                      "environmentSpiceProductionPollutionFactor": 0,
