@@ -955,18 +955,37 @@ class Agent:
         potentialNeighbors = cell.findNeighborAgents()
         modifier = 1
         if len(potentialNeighbors) > 0:
-            inGroupRace, inGroupSex, inGroupTribe = 0, 0, 0
+            inGroupAge, inGroupRace, inGroupSex, inGroupTribe = 0, 0, 0, 0
             for neighbor in potentialNeighbors:
+                neighborAge = neighbor.age
+                inRelativeAgeWindow = abs(neighborAge - self.age) <= self.cell.environment.inGroupAgeRelativeWindow
+                minAgeRange, maxAgeRange = self.cell.environment.inGroupAgeAbsoluteRange
+                inAbsoluteAgeRange = minAgeRange <= neighborAge <= maxAgeRange
+                ageismOutgroupDirections = self.cell.environment.ageismDirection
+                isPossibleAgeOutgroup = (
+                    ("older" in ageismOutgroupDirections and neighborAge >= self.age) or
+                    ("younger" in ageismOutgroupDirections and neighborAge <= self.age)
+                )
+                # Neighbor is considered in-group for age if within relative or absolute age range, or if not an outgroup based on ageism directionality
+                if inRelativeAgeWindow or inAbsoluteAgeRange or not isPossibleAgeOutgroup:
+                    inGroupAge += 1
+
                 neighborRace = neighbor.findRace()
                 if neighborRace == self.findRace() or neighborRace in self.cell.environment.inGroupRaces:
                     inGroupRace += 1
+                
                 neighborSex = neighbor.sex
                 if neighborSex == self.sex:
                     inGroupSex += 1
+                
                 neighborTribe = neighbor.findTribe()
                 if neighborTribe == self.findTribe():
                     inGroupTribe += 1
+            
             # Increase value of cell according to proportion of in-group neighbors
+            if self.decisionModelAgeismFactor > 0:
+                ageProportion = inGroupAge / len(potentialNeighbors)
+                modifier *= (1 + (self.decisionModelAgeismFactor * ageProportion) + ((1 - self.decisionModelAgeismFactor) * (1 - ageProportion)))
             if self.decisionModelRacismFactor > 0:
                 raceProportion = inGroupRace / len(potentialNeighbors)
                 modifier *= (1 + (self.decisionModelRacismFactor * raceProportion) + ((1 - self.decisionModelRacismFactor) * (1 - raceProportion)))
@@ -1376,7 +1395,8 @@ class Agent:
             # Modify value of cell relative to the metabolism needs of the agent
             welfare = self.findWelfare(((cell.sugar + welfarePreySugar) / (1 + cell.pollution)), ((cell.spice + welfarePreySpice) / (1 + cell.pollution)))
 
-            if (self.decisionModelRacismFactor >= 0
+            if (self.decisionModelAgeismFactor >= 0
+                or self.decisionModelRacismFactor >= 0
                 or (self.sex in self.cell.environment.sexistGroups and self.decisionModelSexismFactor >= 0)
                 or self.decisionModelTribalFactor >= 0):
                 # Modify welfare according to group preferences
