@@ -970,7 +970,7 @@ class Agent:
                 modifier *= (0.5 + (self.decisionModelRacismFactor * raceProportion) + ((1 - self.decisionModelRacismFactor) * (1 - raceProportion)))
             if self.sex in self.cell.environment.sexistGroups and self.decisionModelSexismFactor > 0:
                 sexProportion = inGroupSex / len(potentialNeighbors)
-                modifier *= (1 + (self.decisionModelSexismFactor * sexProportion) + ((1 - self.decisionModelSexismFactor) * (1 - sexProportion)))
+                modifier *= (0.5 + (self.decisionModelSexismFactor * sexProportion) + ((1 - self.decisionModelSexismFactor) * (1 - sexProportion)))
             if self.decisionModelTribalFactor > 0:
                 tribeProportion = inGroupTribe / len(potentialNeighbors)
                 modifier *= (0.5 + (self.decisionModelTribalFactor * tribeProportion) + ((1 - self.decisionModelTribalFactor) * (1 - tribeProportion)))
