@@ -985,7 +985,7 @@ class Agent:
             # Increase value of cell according to proportion of in-group neighbors
             if self.decisionModelAgeismFactor > 0:
                 ageProportion = inGroupAge / len(potentialNeighbors)
-                modifier *= (1 + (self.decisionModelAgeismFactor * ageProportion) + ((1 - self.decisionModelAgeismFactor) * (1 - ageProportion)))
+                modifier *= (0.5 + (self.decisionModelAgeismFactor * ageProportion) + ((1 - self.decisionModelAgeismFactor) * (1 - ageProportion)))
             if self.decisionModelRacismFactor > 0:
                 raceProportion = inGroupRace / len(potentialNeighbors)
                 modifier *= (0.5 + (self.decisionModelRacismFactor * raceProportion) + ((1 - self.decisionModelRacismFactor) * (1 - raceProportion)))
