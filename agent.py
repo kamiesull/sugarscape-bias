@@ -988,13 +988,13 @@ class Agent:
                 modifier *= (1 + (self.decisionModelAgeismFactor * ageProportion) + ((1 - self.decisionModelAgeismFactor) * (1 - ageProportion)))
             if self.decisionModelRacismFactor > 0:
                 raceProportion = inGroupRace / len(potentialNeighbors)
-                modifier *= (1 + (self.decisionModelRacismFactor * raceProportion) + ((1 - self.decisionModelRacismFactor) * (1 - raceProportion)))
+                modifier *= (0.5 + (self.decisionModelRacismFactor * raceProportion) + ((1 - self.decisionModelRacismFactor) * (1 - raceProportion)))
             if self.sex in self.cell.environment.sexistGroups and self.decisionModelSexismFactor > 0:
                 sexProportion = inGroupSex / len(potentialNeighbors)
-                modifier *= (1 + (self.decisionModelSexismFactor * sexProportion) + ((1 - self.decisionModelSexismFactor) * (1 - sexProportion)))
+                modifier *= (0.5 + (self.decisionModelSexismFactor * sexProportion) + ((1 - self.decisionModelSexismFactor) * (1 - sexProportion)))
             if self.decisionModelTribalFactor > 0:
                 tribeProportion = inGroupTribe / len(potentialNeighbors)
-                modifier *= (1 + (self.decisionModelTribalFactor * tribeProportion) + ((1 - self.decisionModelTribalFactor) * (1 - tribeProportion)))
+                modifier *= (0.5 + (self.decisionModelTribalFactor * tribeProportion) + ((1 - self.decisionModelTribalFactor) * (1 - tribeProportion)))
         return modifier
 
     def findHammingDistanceInTags(self, neighbor):
@@ -1078,7 +1078,7 @@ class Agent:
     def findRace(self):
         if self.racialTags == None:
             return None
-        # Race is determined by most common element in racialTags
+        # race is determined by most common element in racialTags
         return max(set(self.racialTags), key=self.racialTags.count)
 
     def findRetaliatorsInVision(self):
