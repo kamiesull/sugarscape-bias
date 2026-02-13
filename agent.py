@@ -953,7 +953,9 @@ class Agent:
         potentialNeighbors = cell.findNeighborAgents()
         modifier = 1
         if len(potentialNeighbors) > 0:
-            inGroupRace, inGroupSex, inGroupTribe = 0, 0, 0
+            inGroupRace = 0
+            inGroupSex = 0
+            inGroupTribe = 0
             for neighbor in potentialNeighbors:
                 neighborRace = neighbor.findRace()
                 if neighborRace == self.findRace() or neighborRace in self.cell.environment.inGroupRaces:
@@ -967,6 +969,7 @@ class Agent:
             # Increase value of cell according to proportion of in-group neighbors
             if self.decisionModelRacismFactor > 0:
                 raceProportion = inGroupRace / len(potentialNeighbors)
+                # TODO: Detetermine whether 0.5 is the correct scaling factor
                 modifier *= (0.5 + (self.decisionModelRacismFactor * raceProportion) + ((1 - self.decisionModelRacismFactor) * (1 - raceProportion)))
             if self.sex in self.cell.environment.sexistGroups and self.decisionModelSexismFactor > 0:
                 sexProportion = inGroupSex / len(potentialNeighbors)
