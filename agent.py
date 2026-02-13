@@ -955,7 +955,10 @@ class Agent:
         potentialNeighbors = cell.findNeighborAgents()
         modifier = 1
         if len(potentialNeighbors) > 0:
-            inGroupAge, inGroupRace, inGroupSex, inGroupTribe = 0, 0, 0, 0
+            inGroupAge = 0
+            inGroupRace = 0
+            inGroupSex = 0
+            inGroupTribe = 0
             for neighbor in potentialNeighbors:
                 neighborAge = neighbor.age
                 inRelativeAgeWindow = abs(neighborAge - self.age) <= self.cell.environment.inGroupAgeRelativeWindow
@@ -988,6 +991,7 @@ class Agent:
                 modifier *= (0.5 + (self.decisionModelAgeismFactor * ageProportion) + ((1 - self.decisionModelAgeismFactor) * (1 - ageProportion)))
             if self.decisionModelRacismFactor > 0:
                 raceProportion = inGroupRace / len(potentialNeighbors)
+                # TODO: Detetermine whether 0.5 is the correct scaling factor
                 modifier *= (0.5 + (self.decisionModelRacismFactor * raceProportion) + ((1 - self.decisionModelRacismFactor) * (1 - raceProportion)))
             if self.sex in self.cell.environment.sexistGroups and self.decisionModelSexismFactor > 0:
                 sexProportion = inGroupSex / len(potentialNeighbors)
