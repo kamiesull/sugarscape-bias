@@ -963,7 +963,12 @@ class Agent:
                 neighborAge = neighbor.age
                 inRelativeAgeWindow = abs(neighborAge - self.age) <= self.cell.environment.inGroupAgeRelativeWindow
                 minAgeRange, maxAgeRange = self.cell.environment.inGroupAgeAbsoluteRange
-                inAbsoluteAgeRange = minAgeRange <= neighborAge <= maxAgeRange
+                if self.age < minAgeRange:
+                    inAbsoluteAgeRange = neighborAge <= maxAgeRange
+                elif self.age > maxAgeRange:
+                    inAbsoluteAgeRange = neighborAge >= minAgeRange
+                else:
+                    inAbsoluteAgeRange = minAgeRange <= neighborAge <= maxAgeRange
                 # Neighbor is considered in-group for age if within relative or absolute age range
                 if inRelativeAgeWindow or inAbsoluteAgeRange:
                     inGroupAge += 1
