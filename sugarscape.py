@@ -23,8 +23,7 @@ class Sugarscape:
         self.timestep = 0
         self.nextAgentID = 0
         self.nextDiseaseID = 0
-        environmentConfiguration = {"ageismDirection": configuration["environmentAgeismDirection"],
-                                    "equator": configuration["environmentEquator"],
+        environmentConfiguration = {"equator": configuration["environmentEquator"],
                                     "globalMaxSpice": configuration["environmentMaxSpice"],
                                     "globalMaxSugar": configuration["environmentMaxSugar"],
                                     "inGroupAgeAbsoluteRange": configuration["environmentInGroupAgeAbsoluteRange"],
@@ -1846,7 +1845,6 @@ if __name__ == "__main__":
                      "diseaseTimeframe": [0, 0],
                      "diseaseTransmissionChance": [1.0, 1.0],
                      "diseaseVisionPenalty": [0, 0],
-                     "environmentAgeismDirection": ["older", "younger"],
                      "environmentEquator": -1,
                      "environmentFile": None,
                      "environmentHeight": 50,

@@ -178,13 +178,8 @@ class Bentham(agent.Agent):
                 inRelativeAgeWindow = abs(neighborAge - self.age) <= self.cell.environment.inGroupAgeRelativeWindow
                 minAgeRange, maxAgeRange = self.cell.environment.inGroupAgeAbsoluteRange
                 inAbsoluteAgeRange = minAgeRange <= neighborAge <= maxAgeRange
-                ageismOutgroupDirections = self.cell.environment.ageismDirection
-                isPossibleAgeOutgroup = (
-                    ("older" in ageismOutgroupDirections and neighborAge >= self.age) or
-                    ("younger" in ageismOutgroupDirections and neighborAge <= self.age)
-                )
-                # Neighbor is considered in-group for age if within relative or absolute age range, or if not an outgroup based on ageism directionality
-                if inRelativeAgeWindow or inAbsoluteAgeRange or not isPossibleAgeOutgroup:
+                # Neighbor is considered in-group for age if within relative or absolute age range
+                if inRelativeAgeWindow or inAbsoluteAgeRange:
                     neighborCellValue *= self.decisionModelAgeismFactor
                 else:
                     neighborCellValue *= 1 - self.decisionModelAgeismFactor

@@ -58,7 +58,6 @@
     "diseaseTagStringLength": [11, 21],
     "diseaseTransmissionChance": [1.0, 1.0],
     "diseaseVisionPenalty": [-1, 1],
-    "environmentAgeismDirection": ["older", "younger"],
     "environmentEquator": -1,
     "environmentHeight": 50,
     "environmentInGroupAgeAbsoluteRange": [25, 50],

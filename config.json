@@ -73,7 +73,6 @@
         "diseaseTimeframe": [0, 0],
         "diseaseTransmissionChance": [1.0, 1.0],
         "diseaseVisionPenalty": [-1, 1],
-        "environmentAgeismDirection": ["older", "younger"],
         "environmentEquator": -1,
         "environmentFile": null,
         "environmentHeight": 50,

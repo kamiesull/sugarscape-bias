@@ -7,7 +7,6 @@ class Environment:
         self.width = width
         self.height = height
         self.sugarscape = sugarscape
-        self.ageismDirection = configuration["ageismDirection"]
         self.equator = configuration["equator"] if configuration["equator"] >= 0 else math.ceil(self.height / 2)
         self.globalMaxSpice = configuration["globalMaxSpice"]
         self.globalMaxSugar = configuration["globalMaxSugar"]
