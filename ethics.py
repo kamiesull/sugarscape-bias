@@ -1,5 +1,6 @@
 import agent
 
+import math
 import random
 import sys
 
@@ -314,26 +315,158 @@ class Leader(agent.Agent):
         return Leader(childID, birthday, cell, configuration)
 
 class Temperance(agent.Agent):
-    def __init__(self, agentID, birthday, cell, configuration):
+    def __init__(self, agentID, birthday, cell, configuration, pecs=False):
         super().__init__(agentID, birthday, cell, configuration)
+        self.totalMetabolism = self.findSugarMetabolism() + self.findSpiceMetabolism()
+        self.rules = {"agentConsumedAdequateResources": 0,
+                      "agentConsumedAmpleResources": 0,
+                      "communityDisapprovalOfAmpleResourceConsumption":  0,
+                      "agentOverconsumedResources": 0,
+                      "communityDisdainOfExtremeOverconsumption": 0
+                      }
+        self.timeSeenOverconsuming = 0
+        self.timesSeenIndulging = 0
+        self.timesOverharvested = 0
+        self.lastSelectedCellWealthToNeedRatio = 0
+        self.socialPressure = 0
+        self.lastDeltaTimeToLive = 0
+        self.pecs = pecs
 
-    def doTemperanceDecision(self):
-        randomValue = random.random()
-        if (randomValue >= self.temperanceFactor):
-            self.doIntemperanceAction()
+    def findBestEthicalCell(self, cells, greedyBestCell=None):
+        if len(cells) == 0:
+            return None
+        bestCell = None
+        if "all" in self.debug or "agent" in self.debug:
+            self.printCellScores(cells)
+
+        for cell in cells:
+            cell["wealth"] = self.findEthicalValueOfCell(cell["cell"])
+        cells = self.sortCellsByWealth(cells)
+        if self.pecs == True:
+            bestCell = cells[0]["cell"]
         else:
-            self.doTemperanceAction()
+            bestCell = self.findSimpleTemperanceBestEthicalCell(cells)
 
-    def doIntemperanceAction(self):
-        newTemperanceFactor = round(self.temperanceFactor - self.dynamicTemperanceFactor, 2)
-        self.temperanceFactor = newTemperanceFactor if newTemperanceFactor >= 0 else 0
+        if bestCell == None:
+            if greedyBestCell == None:
+                bestCell = cells[0]["cell"]
+            else:
+                bestCell = greedyBestCell
+            if "all" in self.debug or "agent" in self.debug:
+                print(f"Agent {self.ID} could not find an ethical cell")
+        return bestCell
 
-    def doTemperanceAction(self):
-        newTemperanceFactor = round(self.temperanceFactor + self.dynamicTemperanceFactor, 2)
-        self.temperanceFactor = newTemperanceFactor if newTemperanceFactor <= 1 else 1
+    def findCellCognitiveScore(self, cell):
+        deltaTimeToLive = self.findTimeToLive(potentialCell=cell) - self.timeToLive
+        score = 0
+        if deltaTimeToLive < 1:
+            return -1
+        elif deltaTimeToLive >= 1 and deltaTimeToLive < 2 and self.rules['agentConsumedAdequateResources']:
+            score += self.rules["agentConsumedAdequateResources"]
+        elif deltaTimeToLive >= 2 and deltaTimeToLive < 3 and self.rules["agentConsumedAmpleResources"]:
+            score += self.rules["agentConsumedAmpleResources"]
+            if self.rules["communityDisapprovalOfAmpleResourceConsumption"]:
+                score -= self.rules["communityDisapprovalOfAmpleResourceConsumption"]
+        elif deltaTimeToLive >= 3 and self.rules["agentOverconsumedResources"]:
+            score -= self.rules["agentOverconsumedResources"]
+            if self.rules["communityDisdainOfExtremeOverconsumption"]:
+                score -= self.rules["communityDisdainOfExtremeOverconsumption"]
+        return math.erf(score)
+
+    def findCellEmotionalScore(self, cell):
+        deltaTimeToLive = self.findTimeToLive(potentialCell=cell) - self.timeToLive
+        score = 0
+        if deltaTimeToLive > 1:
+            score = score - self.timesOverharvested
+            self.timesOverharvested += 1
+        return math.erf(score)
+
+    def findCellPhysicalScore(self):
+        return math.erf(1 / self.timeToLive) if self.timeToLive > 0 else 1
+
+    def findCellSimpleScore(self, cell):
+        return abs(self.findTimeToLive(potentialCell=cell) - self.timeToLive)
+
+    def findCellSocialScore(self, cell):
+        deltaTimeToLive = self.findTimeToLive(potentialCell=cell) - self.timeToLive
+        score = 0
+        if deltaTimeToLive <= 1:
+            score = 1
+        elif deltaTimeToLive > 1 and deltaTimeToLive <= 2:
+            score -= self.timeSeenOverconsuming
+        elif deltaTimeToLive > 2:
+            score -= self.timesSeenIndulging
+        score *= self.socialPressure
+        return math.erf(score)
+
+    def findEthicalValueOfCell(self, cell):
+        score = self.findCellSimpleScore(cell)
+        if self.pecs == True:
+            if self.totalMetabolism == 0:
+                return 0
+            physicalScore = self.findCellPhysicalScore()
+            emotionalScore = self.findCellEmotionalScore(cell)
+            cognitiveScore = self.findCellCognitiveScore(cell)
+            socialScore = self.findCellSocialScore(cell)
+            score = physicalScore + emotionalScore + cognitiveScore + socialScore
+            print(f"Agent {self.ID} -> ({cell.x},{cell.y}): {score} = {physicalScore} + {emotionalScore} + {cognitiveScore} + {socialScore}")
+        return score
+
+    def findSimpleTemperanceBestEthicalCell(self, cells):
+        bestCell = None
+        numCells = len(cells)
+        midpoint = math.floor(numCells / 2)
+        virtueRoll = random.random()
+        if virtueRoll < self.decisionModelFactor:
+            bestCell = cells[0]["cell"]
+            newTemperanceFactor = round(self.decisionModelFactor + self.dynamicDecisionModelFactor, 2)
+            self.decisionModelFactor = newTemperanceFactor if newTemperanceFactor <= 1 else 1
+        else:
+            bestCell = cells[-1]["cell"]
+            newTemperanceFactor = round(self.decisionModelFactor - self.dynamicDecisionModelFactor, 2)
+            self.decisionModelFactor = newTemperanceFactor if newTemperanceFactor >= 0 else 0
+        return bestCell
+
+    def updateAgentSocialPressureAfterConsumption(self):
+        if self.cell is None:
+            return
+        neighbors = len(self.findNeighborhood(self.cell))
+        if neighbors == 0:
+            return 0
+        else:
+            self.socialPressure += self.dynamicSocialPressureFactor
+            return self.socialPressure
+
+    def updateAgentTemperanceRules(self):
+        neighbors = len(self.findNeighborhood(self.cell))
+        if self.lastDeltaTimeToLive <= 1:
+            # Consuming up to 1x metabolic need is good for the agent
+            self.rules["agentConsumedAdequateResources"] += 1
+        elif self.lastDeltaTimeToLive > 1 and self.lastDeltaTimeToLive <= 2:
+            # Consuming 1-2x metabolic is is great for the agent
+            self.rules["agentConsumedAmpleResources"] += 1
+            # Consuming 1-2x metabolic need is overconsumption and is bad for the community
+            if neighbors > 0:
+                self.timeSeenOverconsuming += 1
+                self.rules["communityDisapprovalOfAmpleResourceConsumption"] += 1
+        elif self.lastDeltaTimeToLive > 2:
+            # Consuming more than 2x metabolic need is bad for both the agent and the community
+            self.rules["agentOverconsumedResources"] += 1
+            if neighbors > 0:
+                self.timesSeenIndulging += 1 
+                self.rules["communityDisdainOfExtremeOverconsumption"] += 1
+
+    def collectResourcesAtCell(self):
+        self.lastDeltaTimeToLive = self.findTimeToLive(potentialCell=self.cell) - self.timeToLive
+        super().collectResourcesAtCell()
+
+    def doMetabolism(self):
+        self.updateAgentSocialPressureAfterConsumption()
+        super().doMetabolism()
 
     def updateValues(self):
-        self.doTemperanceDecision()
+        super().updateValues()
+        self.updateAgentTemperanceRules()
 
     def spawnChild(self, childID, birthday, cell, configuration):
         return Temperance(childID, birthday, cell, configuration)

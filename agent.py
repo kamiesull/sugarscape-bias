@@ -21,8 +21,9 @@ class Agent:
         self.decisionModelTribalFactor = configuration["decisionModelTribalFactor"]
         self.depressionFactor = configuration["depressionFactor"]
         self.diseaseProtectionChance = configuration["diseaseProtectionChance"]
+        self.dynamicDecisionModelFactor = configuration["dynamicDecisionModelFactor"]
         self.dynamicSelfishnessFactor = configuration["dynamicSelfishnessFactor"]
-        self.dynamicTemperanceFactor = configuration["dynamicTemperanceFactor"]
+        self.dynamicSocialPressureFactor = configuration["dynamicSocialPressureFactor"]
         self.fertilityAge = configuration["fertilityAge"]
         self.fertilityFactor = configuration["fertilityFactor"]
         self.follower = configuration["follower"]
@@ -52,7 +53,6 @@ class Agent:
         self.tagging = configuration["tagging"]
         self.tagPreferences = configuration["tagPreferences"]
         self.tags = configuration["tags"]
-        self.temperanceFactor = configuration["temperanceFactor"]
         self.tradeFactor = configuration["tradeFactor"]
         self.universalSpice = configuration["universalSpice"]
         self.universalSugar = configuration["universalSugar"]
@@ -131,7 +131,7 @@ class Agent:
         self.reproductionWithExperimentalGroup = 0
         self.tradeWithControlGroup = 0
         self.tradeWithExperimentalGroup = 0
-
+        
         # Change metrics for depressed agents
         if self.depressionFactor == 1:
             self.depressed = True
@@ -152,8 +152,17 @@ class Agent:
         agentID = agent.ID
         if agentID in self.socialNetwork:
             return
+<<<<<<< simple_temperance_movement
+        #TODO: update this to include an "opinion" metric if temperance is enabled for the agent
+        self.socialNetwork[agentID] = {"agent": agent, "lastSeen": self.lastMoved, "timesVisited": 1, "timesReproduced": 0,
+=======
         self.socialNetwork[agentID] = {"agent": agent, "lastSeen": self.lastMovedTimestep, "timesVisited": 1, "timesReproduced": 0,
+>>>>>>> master
                                          "timesTraded": 0, "timesLoaned": 0, "marginalRateOfSubstitution": 0}
+        
+        if self.decisionModel == "temperance":
+            # If this is a temperance agent, initialize opinion to neutral (0.5)
+            self.socialNetwork[agentID]["opinion"] = 0.5
 
     def addChildToCell(self, mate, cell, childConfiguration):
         sugarscape = self.cell.environment.sugarscape
@@ -806,10 +815,10 @@ class Agent:
         "decisionModelLookaheadFactor": [self.decisionModelLookaheadFactor, mate.decisionModelLookaheadFactor],
         "decisionModelRacismFactor": [self.decisionModelRacismFactor, mate.decisionModelRacismFactor],
         "decisionModelTribalFactor": [self.decisionModelTribalFactor, mate.decisionModelTribalFactor],
+        "dynamicDecisionModelFactor" : [self.dynamicDecisionModelFactor, mate.dynamicDecisionModelFactor],
         "dynamicSelfishnessFactor": [self.dynamicSelfishnessFactor, mate.dynamicSelfishnessFactor],
-        "dynamicTemperanceFactor" : [self.dynamicTemperanceFactor, mate.dynamicTemperanceFactor],
+        "dynamicSocialPressureFactor" : [self.dynamicSocialPressureFactor, mate.dynamicSocialPressureFactor],
         "selfishnessFactor" : [self.selfishnessFactor, mate.selfishnessFactor],
-        "temperanceFactor" : [self.temperanceFactor, mate.temperanceFactor]
         }
         childEndowment = {"seed": self.seed, "follower": self.follower}
         randomNumberReset = random.getstate()
@@ -1079,12 +1088,21 @@ class Agent:
     def findSugarMetabolism(self):
         return max(0, self.sugarMetabolism + self.sugarMetabolismModifier)
 
-    def findTimeToLive(self, ageLimited=False):
+    def findTimeToLive(self, ageLimited=False, potentialCell=None):
         spiceMetabolism = self.findSpiceMetabolism()
         sugarMetabolism = self.findSugarMetabolism()
+        sugar = self.sugar
+        spice = self.spice
+        if potentialCell != None:
+            if potentialCell.isOccupied() == True:
+                combatMaxLoot = self.cell.environment.maxCombatLoot
+                sugar += min(combatMaxLoot, potentialCell.agent.sugar)
+                spice += min(combatMaxLoot, potentialCell.agent.spice)
+            sugar += potentialCell.sugar
+            spice += potentialCell.spice
         # If no sugar or spice metabolism, set days to death for that resource to seemingly infinite
-        sugarTimeToLive = self.sugar / sugarMetabolism if sugarMetabolism > 0 else sys.maxsize
-        spiceTimeToLive = self.spice / spiceMetabolism if spiceMetabolism > 0 else sys.maxsize
+        sugarTimeToLive = sugar / sugarMetabolism if sugarMetabolism > 0 else sys.maxsize
+        spiceTimeToLive = spice / spiceMetabolism if spiceMetabolism > 0 else sys.maxsize
         # If an agent has basic income, include the income for at least as many timesteps as they can already survive
         if self.universalSugar != 0:
             sugarIncome = (sugarTimeToLive * self.universalSugar) / self.cell.environment.universalSugarIncomeInterval
@@ -1095,7 +1113,8 @@ class Agent:
         timeToLive = min(sugarTimeToLive, spiceTimeToLive)
         if ageLimited == True:
             timeToLive = min(timeToLive, self.maxAge - self.age)
-        self.timeToLive = timeToLive
+        if potentialCell == None:
+            self.timeToLive = timeToLive
         return timeToLive
 
     def findTribe(self):
