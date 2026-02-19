@@ -427,7 +427,8 @@ class Temperance(agent.Agent):
             cognitiveScore = self.findCellCognitiveScore(cell)
             socialScore = self.findCellSocialScore(cell)
             score = physicalScore + emotionalScore + cognitiveScore + socialScore
-            print(f"Agent {self.ID} -> ({cell.x},{cell.y}): {score} = {physicalScore} + {emotionalScore} + {cognitiveScore} + {socialScore}")
+            # TODO: Improve fidelity to temperance as it relates to agent lives
+            #print(f"Agent {self.ID} -> ({cell.x},{cell.y}): {score} = {physicalScore} + {emotionalScore} + {cognitiveScore} + {socialScore}")
         return score
 
     def findSimpleTemperanceBestEthicalCell(self, cells):

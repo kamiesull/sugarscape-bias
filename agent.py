@@ -152,12 +152,7 @@ class Agent:
         agentID = agent.ID
         if agentID in self.socialNetwork:
             return
-<<<<<<< simple_temperance_movement
-        #TODO: update this to include an "opinion" metric if temperance is enabled for the agent
-        self.socialNetwork[agentID] = {"agent": agent, "lastSeen": self.lastMoved, "timesVisited": 1, "timesReproduced": 0,
-=======
         self.socialNetwork[agentID] = {"agent": agent, "lastSeen": self.lastMovedTimestep, "timesVisited": 1, "timesReproduced": 0,
->>>>>>> master
                                          "timesTraded": 0, "timesLoaned": 0, "marginalRateOfSubstitution": 0}
         
         if self.decisionModel == "temperance":
