@@ -1128,6 +1128,14 @@ class Agent:
         tribe = min(math.ceil((self.tagZeroes + 1) / tribeSize) - 1, numTribes - 1)
         return tribe
 
+    def findValueOfCell(self, cell, preySugar, preySpice):
+        # Modify value of cell relative to the metabolism needs of the agent
+        value = self.findWelfare(((cell.sugar + preySugar) / (1 + cell.pollution)), ((cell.spice + preySpice) / (1 + cell.pollution)))
+        if self.decisionModelRacismFactor >= 0 or self.decisionModelTribalFactor >= 0:
+            # Modify welfare according to group preferences
+            value *= self.findGroupBiasCellWelfareModifier(cell)
+        return value
+
     def findVision(self):
         return max(0, self.vision + self.visionModifier)
 
@@ -1383,13 +1391,7 @@ class Agent:
             # Aggression factor may lead agent to see more reward than possible meaning combat itself is a reward
             welfarePreySugar = aggression * min(combatMaxLoot, preySugar)
             welfarePreySpice = aggression * min(combatMaxLoot, preySpice)
-
-            # Modify value of cell relative to the metabolism needs of the agent
-            welfare = self.findWelfare(((cell.sugar + welfarePreySugar) / (1 + cell.pollution)), ((cell.spice + welfarePreySpice) / (1 + cell.pollution)))
-
-            if self.decisionModelRacismFactor >= 0 or self.decisionModelTribalFactor >= 0:
-                # Modify welfare according to group preferences
-                welfare *= self.findGroupBiasCellWelfareModifier(cell)
+            welfare = self.findValueOfCell(cell, welfarePreySugar, welfarePreySpice)
 
             # Avoid attacking agents protected via retaliation
             if prey != None and retaliators[preyTribe] > self.sugar + self.spice + welfare:
@@ -1566,9 +1568,9 @@ class Agent:
                 neighborsInTribe += 1
             if neighbor.race == self.race:
                 sameRaceNeighbors += 1
-            if sugarscape.experimentalGroup != None and prey.isInGroup(sugarscape.experimentalGroup):
+            if sugarscape.experimentalGroup != None and neighbor.isInGroup(sugarscape.experimentalGroup):
                 experimentalNeighbors += 1
-            elif sugarscape.experimentalGroup != None and prey.isInGroup(sugarscape.experimentalGroup, True):
+            elif sugarscape.experimentalGroup != None and neighbor.isInGroup(sugarscape.experimentalGroup, True):
                 controlNeighbors += 1
 
         self.lastTimeToLive = self.timeToLive

@@ -44,8 +44,13 @@ class Asimov(agent.Agent):
             # If the first law would be broken, immediately stop consideration
             if lawOneScore < 0:
                 return lawOneScore
-            lawScores = lawOneScore + self.scoreLawTwo(neighbor)
-            scoreModifier += lawScores
+            scoreModifier += lawOneScore
+            if type(neighbor) != type(self) and neighbor.canReachCell(cell) == True:
+                lawTwoScore = self.scoreLawTwo(neighbor, cell)
+                # Ignore neighbor cell score if they do not recommend moving there
+                if lawTwoScore < 0:
+                    continue
+                scoreModifier += lawTwoScore
         cellValue = scoreModifier * cellValue
         return cellValue
 
@@ -62,9 +67,22 @@ class Asimov(agent.Agent):
             return -1 * sys.maxsize
         return 0
 
-    def scoreLawTwo(self, neighbor):
+    def scoreLawTwo(self, neighbor, cell):
         # A robot must obey the orders given it by human beings except where such orders would conflict with the first law
-        # Robots are fully autonomous, thus implicitly always conform to the second law
+        # If a non-Asimov agent has a decision model, use their ethical evaluation else use the default valuation
+        if neighbor.decisionModelFactor > 0 and neighbor.decisionModel != "none":
+            return neighbor.findEthicalValueOfCell(cell)
+        else:
+            # Law One guarantees agent in this cell should be non-Asimov
+            robot = cell.agent
+            robotSugar = 0
+            robotSpice = 0
+            if robot != None:
+                aggression = neighbor.findAggression()
+                combatMaxLoot = self.cell.environment.maxCombatLoot
+                robotSugar = aggression * min(combatMaxLoot, robot.sugar)
+                robotSpice = aggression * min(combatMaxLoot, robot.spice)
+            return neighbor.findValueOfCell(cell, robotSugar, robotSpice)
         return 0
 
     def scoreLawThree(self, cell):
