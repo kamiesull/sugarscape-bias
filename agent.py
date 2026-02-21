@@ -1133,9 +1133,7 @@ class Agent:
     def findValueOfCell(self, cell, preySugar, preySpice):
         # Modify value of cell relative to the metabolism needs of the agent
         value = self.findWelfare(((cell.sugar + preySugar) / (1 + cell.pollution)), ((cell.spice + preySpice) / (1 + cell.pollution)))
-        if (self.decisionModelRacismFactor >= 0
-            or (self.sex in self.cell.environment.sexistGroups and self.decisionModelSexismFactor >= 0)
-            or self.decisionModelTribalFactor >= 0):
+        if self.decisionModelRacismFactor >= 0 or (self.sex in self.cell.environment.sexistGroups and self.decisionModelSexismFactor >= 0) or self.decisionModelTribalFactor >= 0:
             # Modify welfare according to group preferences
             value *= self.findGroupBiasCellWelfareModifier(cell)
         return value

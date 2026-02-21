@@ -1586,13 +1586,11 @@ def verifyConfiguration(configuration):
     if configuration["agentDecisionModelSexismFactor"][0] < 0:
         if configuration["agentDecisionModelSexismFactor"][1] != -1:
             if "all" in configuration["debugMode"] or "agent" in configuration["debugMode"]:
-                print(
-                    f"Cannot have agent sexism factor range of {configuration['agentDecisionModelSexismFactor']}. Disabling agent sexism factor.")
+                print(f"Cannot have agent sexism factor range of {configuration['agentDecisionModelSexismFactor']}. Disabling agent sexism factor.")
         configuration["agentDecisionModelSexismFactor"] = [-1, -1]
     elif configuration["agentDecisionModelSexismFactor"][1] > 1:
         if "all" in configuration["debugMode"] or "agent" in configuration["debugMode"]:
-            print(
-                f"Cannot have agent maximum sexism factor of {configuration['agentDecisionModelSexismFactor'][1]}. Setting agent maximum sexism factor to 1.0.")
+            print(f"Cannot have agent maximum sexism factor of {configuration['agentDecisionModelSexismFactor'][1]}. Setting agent maximum sexism factor to 1.0.")
         configuration["agentDecisionModelSexismFactor"][1] = 1
 
     if configuration["agentDecisionModelTribalFactor"][0] < 0:
