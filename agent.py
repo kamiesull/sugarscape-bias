@@ -964,11 +964,9 @@ class Agent:
                 neighborRace = neighbor.findRace()
                 if neighborRace == self.findRace() or neighborRace in self.cell.environment.inGroupRaces:
                     inGroupRace += 1
-                neighborSex = neighbor.sex
-                if neighborSex == self.sex:
+                if neighbor.sex == self.sex:
                     inGroupSex += 1
-                neighborTribe = neighbor.findTribe()
-                if neighborTribe == self.findTribe():
+                if neighbor.findTribe() == self.findTribe():
                     inGroupTribe += 1
             # Increase value of cell according to proportion of in-group neighbors
             if self.decisionModelRacismFactor > 0:

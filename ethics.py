@@ -201,8 +201,7 @@ class Bentham(agent.Agent):
                     # If different race and not in-group, multiply by inverse racism factor
                     neighborCellValue *= 1 - self.decisionModelRacismFactor
             if self.sex in self.cell.environment.sexistGroups and self.decisionModelSexismFactor >= 0:
-                neighborSex = neighbor.sex
-                if neighborSex == self.sex:
+                if neighbor.sex == self.sex:
                     # If same sex, multiply by sexism factor
                     neighborCellValue *= self.decisionModelSexismFactor
                 else:
