@@ -1827,7 +1827,7 @@ if __name__ == "__main__":
                      "environmentQuadrantSizeFactor": 1,
                      "environmentSeasonalGrowbackDelay": 0,
                      "environmentSeasonInterval": 0,
-                     "environmentSexistGroups": ["female", "male"],
+                     "environmentSexistGroups": [],
                      "environmentSpiceConsumptionPollutionFactor": 0,
                      "environmentSpicePeaks": [[35, 35, 4], [15, 15, 4]],
                      "environmentSpiceProductionPollutionFactor": 0,
