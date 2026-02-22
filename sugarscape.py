@@ -1580,13 +1580,11 @@ def verifyConfiguration(configuration):
     if configuration["agentDecisionModelAgeismFactor"][0] < 0:
         if configuration["agentDecisionModelAgeismFactor"][1] != -1:
             if "all" in configuration["debugMode"] or "agent" in configuration["debugMode"]:
-                print(
-                    f"Cannot have agent ageism factor range of {configuration['agentDecisionModelAgeismFactor']}. Disabling agent ageism factor.")
+                print(f"Cannot have agent ageism factor range of {configuration['agentDecisionModelAgeismFactor']}. Disabling agent ageism factor.")
         configuration["agentDecisionModelAgeismFactor"] = [-1, -1]
     elif configuration["agentDecisionModelAgeismFactor"][1] > 1:
         if "all" in configuration["debugMode"] or "agent" in configuration["debugMode"]:
-            print(
-                f"Cannot have agent maximum ageism factor of {configuration['agentDecisionModelAgeismFactor'][1]}. Setting agent maximum ageism factor to 1.0.")
+            print(f"Cannot have agent maximum ageism factor of {configuration['agentDecisionModelAgeismFactor'][1]}. Setting agent maximum ageism factor to 1.0.")
         configuration["agentDecisionModelAgeismFactor"][1] = 1
 
     if configuration["agentDecisionModelRacismFactor"][0] < 0:
@@ -1705,8 +1703,7 @@ def verifyConfiguration(configuration):
     if configuration["environmentInGroupAgeAbsoluteRange"][0] < 0:
         if configuration["environmentInGroupAgeAbsoluteRange"][1] != -1:
             if "all" in configuration["debugMode"] or "environment" in configuration["debugMode"]:
-                print(
-                    f"Cannot have environment in-group age cutoff range of {configuration['environmentInGroupAgeAbsoluteRange']}. Disabling environment in-group age cutoff.")
+                print(f"Cannot have environment in-group age cutoff range of {configuration['environmentInGroupAgeAbsoluteRange']}. Disabling environment in-group age cutoff.")
         configuration["environmentInGroupAgeAbsoluteRange"] = [-1, -1]
 
     # Ensure no negative value for environmentInGroupAgeRelativeWindow
