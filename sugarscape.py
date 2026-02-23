@@ -1771,7 +1771,7 @@ def verifyConfiguration(configuration):
     # Ensure experimental group is properly defined or otherwise ignored
     if configuration["experimentalGroup"] == "":
         configuration["experimentalGroup"] = None
-    groupList = ["depressed", "female", "male", "sick"]
+    groupList = ["ageInGroup", "depressed", "female", "male", "sick"]
     if type(configuration["agentDecisionModels"]) == str:
         groupList.append(configuration["agentDecisionModels"])
     else:
