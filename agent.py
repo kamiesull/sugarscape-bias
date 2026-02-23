@@ -1266,6 +1266,9 @@ class Agent:
             membership = True if self.sex == "female" else False
         elif group == "male":
             membership = True if self.sex == "male" else False
+        elif "race" in group:
+            raceID = int(re.search(r"race(?P<ID>\d+)", group).group("ID"))
+            membership = self.race == raceID
         elif group == "sick":
             membership = self.isSick()
 

@@ -547,8 +547,9 @@ environmentWraparound: bool
 
 experimentalGroup: string
     Set the experimental group of agents under study for finer-grained logging.
-    Options: "depressed", "disease", "female", "male", "sick", decision model names
+    Options: "depressed", "disease", "female", "male", "race", "sick", decision model names
     Note: Add an integer after "disease" such as "disease1" to track a specific disease.
+    Note: Race requires an integer after "race" such as "race0" to track a specific race. "race" alone will not work.
     Default: null
 
 headlessMode: bool

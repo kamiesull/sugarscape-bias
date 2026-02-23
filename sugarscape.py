@@ -1776,7 +1776,7 @@ def verifyConfiguration(configuration):
         groupList.append(configuration["agentDecisionModels"])
     else:
         groupList += configuration["agentDecisionModels"]
-    if configuration["experimentalGroup"] != None and configuration["experimentalGroup"] not in groupList and "disease" not in configuration["experimentalGroup"]:
+    if configuration["experimentalGroup"] != None and configuration["experimentalGroup"] not in groupList and "disease" not in configuration["experimentalGroup"] and ("race" not in configuration["experimentalGroup"] or configuration["experimentalGroup"] == "race"):
         if "all" in configuration["debugMode"] or "agent" in configuration["debugMode"]:
             print(f"Cannot provide separate log stats for experimental group {configuration['experimentalGroup']}. Disabling separate log stats.")
         configuration["experimentalGroup"] = None
