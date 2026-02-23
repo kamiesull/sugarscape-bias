@@ -43,6 +43,9 @@ def findMedians(dataset):
 
 def generatePlots(config, models, totalTimesteps, dataset, statistic, experimentalGroup=None):
     titleStatistic = statistic.title()
+    if "ageism" in config["plots"]:
+        print(f"Generating {statistic} ageism plot")
+        generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_ageism.pdf", "meanAgeismFactor", f"{titleStatistic} Ageism Factor", "lower center", percentage=False, experimentalGroup=experimentalGroup)
     if "conflictHappiness" in config["plots"]:
         print(f"Generating {statistic} conflict happiness plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_conflict_happiness.pdf", "meanConflictHappiness", f"{titleStatistic} Conflict Happiness", "center right", percentage=False, experimentalGroup=experimentalGroup)
@@ -67,9 +70,15 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
     if "population" in config["plots"]:
         print(f"Generating {statistic} population plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_population.pdf", "population", f"{titleStatistic} Population", "lower right", percentage=False, experimentalGroup=experimentalGroup)
+    if "racism" in config["plots"]:
+        print(f"Generating {statistic} racism plot")
+        generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_racism.pdf", "meanRacismFactor", f"{titleStatistic} Racism Factor", "lower center", percentage=False, experimentalGroup=experimentalGroup)
     if "selfishness" in config["plots"]:
         print(f"Generating {statistic} selfishness plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_selfishness.pdf", "meanSelfishness", f"{titleStatistic} Selfishness Factor", "lower center", percentage=False, experimentalGroup=experimentalGroup)
+    if "sexism" in config["plots"]:
+        print(f"Generating {statistic} sexism plot")
+        generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_sexism.pdf", "meanSexismFactor", f"{titleStatistic} Sexism Factor", "lower center", percentage=False, experimentalGroup=experimentalGroup)
     if "sickness" in config["plots"]:
         print(f"Generating {statistic} sick percentage plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_sickness.pdf", "sickAgentsPercentage", f"{titleStatistic} Diseased Agents", "center right", percentage=True, experimentalGroup=experimentalGroup)

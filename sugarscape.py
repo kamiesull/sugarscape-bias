@@ -84,7 +84,7 @@ class Sugarscape:
                              "environmentWealthTotal": 0, "agentWealthCollected": 0, "agentWealthBurnRate": 0, "agentMeanTimeToLive": 0, "agentTotalMetabolism": 0,
                              "agentCombatDeaths": 0, "agentAgingDeaths": 0, "agentDeaths": 0, "largestRace": 0, "largestTribe": 0, "largestRaceSize": 0, "largestTribeSize": 0,
                              "remainingRaces": self.configuration["environmentMaxRaces"], "remainingTribes": self.configuration["environmentMaxTribes"],
-                             "sickAgents": 0, "carryingCapacity": 0, "meanDeathsPercentage": 0, "sickAgentsPercentage": 0, "meanSelfishness": 0,
+                             "sickAgents": 0, "carryingCapacity": 0, "meanDeathsPercentage": 0, "sickAgentsPercentage": 0, "meanAgeismFactor": 0, "meanRacismFactor": 0, "meanSelfishness": 0, "meanSexismFactor": 0,
                              "diseaseEffectiveReproductionRate": 0, "diseaseIncidence": 0, "diseasePrevalence": 0, "agentLastMoveOptimalityPercentage": 0, "meanNeighbors": 0,
                              "meanMoveRank": 0, "meanMoveDifferenceFromOptimal": 0, "meanValidMoves": 0
                              }
@@ -991,13 +991,16 @@ class Sugarscape:
         maxTribeSize = 0
         maxWealth = 0
         meanAge = 0
+        meanAgeismFactor = 0
         meanConflictHappiness = 0
         meanFamilyHappiness = 0
         meanHappiness = 0
         meanHealthHappiness = 0
         meanMetabolism = 0
         meanMovement = 0
+        meanRacismFactor = 0
         meanSelfishness = 0
+        meanSexismFactor = 0
         meanSocialHappiness = 0
         meanSpiceMetabolism = 0
         meanSugarMetabolism = 0
@@ -1087,7 +1090,10 @@ class Sugarscape:
             agentTimeToLive = agent.findTimeToLive()
             agentTimeToLiveAgeLimited = agent.findTimeToLive(True)
             agentWealth = agent.sugar + agent.spice
+            meanAgeismFactor += agent.decisionModelAgeismFactor
+            meanRacismFactor += agent.decisionModelRacismFactor
             meanSelfishness += agent.selfishnessFactor
+            meanSexismFactor += agent.decisionModelSexismFactor
             meanSugarMetabolism += agent.sugarMetabolism
             meanSpiceMetabolism += agent.spiceMetabolism
             meanMovement += agent.movement
@@ -1256,6 +1262,7 @@ class Sugarscape:
             maxTribeSize = tribes[maxTribe]
             maxWealth = round(maxWealth, 2)
             meanAge = round(meanAge / numAgents, 2)
+            meanAgeismFactor = round(meanAgeismFactor / numAgents, 2)
             meanConflictHappiness = round(meanConflictHappiness / numAgents, 2)
             meanFamilyHappiness = round(meanFamilyHappiness / numAgents, 2)
             meanHappiness = round(meanHappiness / numAgents, 2)
@@ -1265,7 +1272,9 @@ class Sugarscape:
                 combinedMetabolism = round(combinedMetabolism / 2, 2)
             meanMetabolism = round(combinedMetabolism / numAgents, 2)
             meanMovement = round(meanMovement / numAgents, 2)
+            meanRacismFactor = round(meanRacismFactor / numAgents, 2)
             meanSelfishness = round(meanSelfishness / numAgents, 2)
+            meanSexismFactor = round(meanSexismFactor / numAgents, 2)
             meanSocialHappiness = round(meanSocialHappiness / numAgents, 2)
             meanTradePrice = round(meanTradePrice / numTraders, 2) if numTraders > 0 else 0
             meanVision = round(meanVision / numAgents, 2)
@@ -1294,13 +1303,16 @@ class Sugarscape:
             maxTribe = 0
             maxWealth = 0
             meanAge = 0
+            meanAgeismFactor = 0
             meanConflictHappiness = 0
             meanFamilyHappiness = 0
             meanHappiness = 0
             meanHealthHappiness = 0
             meanMetabolism = 0
             meanMovement = 0
+            meanRacismFactor = 0
             meanSelfishness = 0
+            meanSexismFactor = 0
             meanSocialHappiness = 0
             meanVision = 0
             meanWealth = 0
@@ -1328,10 +1340,10 @@ class Sugarscape:
                         "agentWealthBurnRate": agentWealthBurnRate, "agentWealthCollected": agentWealthCollected, "agentWealthTotal": agentWealthTotal,
                         "carryingCapacity": carryingCapacity, "largestRace": maxRace, "largestRaceSize": maxRaceSize,
                         "largestTribe": maxTribe, "largestTribeSize": maxTribeSize, "maxWealth": maxWealth,
-                        "meanAge": meanAge, "meanAgeAtDeath": meanAgeAtDeath, "meanConflictHappiness": meanConflictHappiness,
+                        "meanAge": meanAge, "meanAgeAtDeath": meanAgeAtDeath, "meanAgeismFactor": meanAgeismFactor, "meanConflictHappiness": meanConflictHappiness,
                         "meanFamilyHappiness": meanFamilyHappiness, "meanHappiness": meanHappiness, "meanHealthHappiness": meanHealthHappiness,
                         "meanMetabolism": meanMetabolism, "meanMovement": meanMovement, "meanMoveDifferenceFromOptimal": meanMoveDifferenceFromOptimal,
-                        "meanMoveRank": meanMoveRank, "meanNeighbors": meanNeighbors, "meanSelfishness": meanSelfishness,
+                        "meanMoveRank": meanMoveRank, "meanNeighbors": meanNeighbors, "meanRacismFactor": meanRacismFactor, "meanSelfishness": meanSelfishness, "meanSexismFactor": meanSexismFactor,
                         "meanSocialHappiness": meanSocialHappiness, "meanTradePrice": meanTradePrice, "meanWealth": meanWealth,
                         "meanWealthHappiness": meanWealthHappiness, "meanValidMoves": meanValidMoves, "meanVision": meanVision, "minWealth": minWealth,
                         "population": numAgents, "sickAgents": sickAgents, 
