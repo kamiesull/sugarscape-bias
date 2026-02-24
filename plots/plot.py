@@ -73,6 +73,9 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
     if "loanVolume" in config["plots"]:
         print(f"Generating {statistic} loan volume plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_loans.pdf", "loanVolume", f"{titleStatistic} Loan Volume", "center right", percentage=False, experimentalGroup=experimentalGroup)
+    if "lendingInteractions" in config["plots"]:
+        print(f"Generating {statistic} lending interactions plot")
+        generateGroupInteractionLinePlot(models, dataset, totalTimesteps, f"{statistic}_lending_interactions.pdf", "lending", f"{titleStatistic} Lending Interactions", "center right")
     if "population" in config["plots"]:
         print(f"Generating {statistic} population plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_population.pdf", "population", f"{titleStatistic} Population", "lower right", percentage=False, experimentalGroup=experimentalGroup)
@@ -97,6 +100,9 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
     if "tradeVolume" in config["plots"]:
         print(f"Generating {statistic} trade volume plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_trades.pdf", "tradeVolume", f"{titleStatistic} Trade Volume", "center right", percentage=False, experimentalGroup=experimentalGroup)
+    if "tradeInteractions" in config["plots"]:
+        print(f"Generating {statistic} trade interactions plot")
+        generateGroupInteractionLinePlot(models, dataset, totalTimesteps, f"{statistic}_trade_interactions.pdf", "trade", f"{titleStatistic} Trade Interactions", "center right")
     if "ttl" in config["plots"]:
         print(f"Generating {statistic} time to live plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_ttl.pdf", "agentMeanTimeToLive", f"{titleStatistic} Time to Live", "upper right", percentage=False, experimentalGroup=experimentalGroup)
@@ -106,6 +112,38 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
     if "wealthHappiness" in config["plots"]:
         print(f"Generating {statistic} wealth happiness plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_total_wealth_happiness.pdf", "meanWealthHappiness", f"{titleStatistic} Wealth Happiness", "center right", percentage=False, experimentalGroup=experimentalGroup)
+
+def generateGroupInteractionLinePlot(models, dataset, totalTimesteps, outfile, column, label, positioning):
+    matplotlib.pyplot.rcParams["font.family"] = "serif"
+    matplotlib.pyplot.rcParams["font.size"] = 18
+    modelCount = len(dataset)
+    figure, axes = matplotlib.pyplot.subplots(1, modelCount, figsize=(8 * modelCount, 6), squeeze=False)
+    x = [i for i in range(totalTimesteps + 1)]
+    y = [0 for i in range(totalTimesteps + 1)]
+    modelStrings = {"asimov": "Asimov's Robot", "bentham": "Utilitarian", "egoist": "Egoist", "altruist": "Altruist", "none": "Raw Sugarscape", "rawSugarscape": "Raw Sugarscape",
+                    "temperance": "Simple Temperance", "temperancePECS": "Complex Temperance", "multiple": "Multiple", "unknown": "Unknown"}
+    interactionColumns = [
+        (f"{column}ControlGroupToControlGroup", "Control to Control", "blue"),
+        (f"{column}ControlGroupToExperimentalGroup", "Control to Experimental", "magenta"),
+        (f"{column}ExperimentalGroupToControlGroup", "Experimental to Control", "cyan"),
+        (f"{column}ExperimentalGroupToExperimentalGroup", "Experimental to Experimental", "gold")
+    ]
+    for i, model in enumerate(dataset):
+        axesColumn = axes[0][i]
+        axesColumn.set(xlabel = "Timestep", ylabel = label, xlim = [0, totalTimesteps])
+        modelString = model
+        if '_' in model:
+            modelString = "multiple"
+        elif model not in modelStrings:
+            modelString = "unknown"
+        axesColumn.set_title(modelStrings[modelString])
+        for interactionColumn, interactionLabel, color in interactionColumns:
+            if interactionColumn in dataset[model]["aggregates"]:
+                y = [dataset[model]["aggregates"][interactionColumn][i] for i in range(totalTimesteps + 1)]
+                axesColumn.plot(x, y, color=color, label=f"{interactionLabel}")
+        axesColumn.legend(loc=positioning, labelspacing=0.1, frameon=False, fontsize=16)
+    figure.tight_layout()
+    figure.savefig(outfile, format="pdf", bbox_inches="tight")
 
 def generatePlotForBiases(dataset, totalTimesteps, outfile, label, positioning, experimentalGroup=None):
     matplotlib.pyplot.rcParams["font.family"] = "serif"
