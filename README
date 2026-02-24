@@ -23,6 +23,9 @@ make data
     Run a number of random seeds comparing selected decision models.
     Note: Results will be saved in the data subdirectory.
 
+make lean
+    Clean up working files and plots created by the software but keep any logs and datasets. 
+
 make plots
     Generate graph plots from any JSON files in the data subdirectory.
     Note: Plots are dependent on a dataset existing and will create it if necessary.
