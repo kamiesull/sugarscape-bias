@@ -70,6 +70,9 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
     if "lifeExpectancy" in config["plots"]:
         print(f"Generating {statistic} life expectancy plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_life_expectancy.pdf", "meanAgeAtDeath", f"{titleStatistic} Life Expectancy", "lower right", percentage=False, experimentalGroup=experimentalGroup)
+    if "loanVolume" in config["plots"]:
+        print(f"Generating {statistic} loan volume plot")
+        generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_loans.pdf", "loanVolume", f"{titleStatistic} Loan Volume", "center right", percentage=False, experimentalGroup=experimentalGroup)
     if "population" in config["plots"]:
         print(f"Generating {statistic} population plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_population.pdf", "population", f"{titleStatistic} Population", "lower right", percentage=False, experimentalGroup=experimentalGroup)

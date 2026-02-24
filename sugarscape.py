@@ -78,7 +78,7 @@ class Sugarscape:
         # TODO: Remove redundant metrics
         # TODO: Streamline naming
         self.runtimeStats = {"timestep": 0, "population": 0, "meanMetabolism": 0, "meanMovement": 0, "meanVision": 0, "meanWealth": 0, "meanAge": 0, "giniCoefficient": 0,
-                             "meanTradePrice": 0, "tradeVolume": 0, "maxWealth": 0, "minWealth": 0, "meanHappiness": 0, "meanWealthHappiness": 0, "meanHealthHappiness": 0,
+                             "meanTradePrice": 0, "tradeVolume": 0, "loanVolume": 0, "maxWealth": 0, "minWealth": 0, "meanHappiness": 0, "meanWealthHappiness": 0, "meanHealthHappiness": 0,
                              "meanSocialHappiness": 0, "meanFamilyHappiness": 0, "meanConflictHappiness": 0, "meanAgeAtDeath": 0, "seed": self.seed, "agentsReplaced": 0,
                              "agentsBorn": 0, "agentStarvationDeaths": 0, "agentDiseaseDeaths": 0, "environmentWealthCreated": 0, "agentWealthTotal": 0,
                              "environmentWealthTotal": 0, "agentWealthCollected": 0, "agentWealthBurnRate": 0, "agentMeanTimeToLive": 0, "agentTotalMetabolism": 0,
@@ -1015,6 +1015,7 @@ class Sugarscape:
         numTribes = 0
         sickAgents = 0
         tradeVolume = 0
+        loanVolume = 0
         carryingCapacityWeight = 0.05
         carryingCapacity = math.ceil((carryingCapacityWeight * len(self.agents)) + ((1 - carryingCapacityWeight) * self.runtimeStats["carryingCapacity"]))
         if self.timestep == 0:
@@ -1110,6 +1111,8 @@ class Sugarscape:
                 meanTradePrice += max(agent.spicePrice, agent.sugarPrice)
                 tradeVolume += agent.tradeVolume
                 numTraders += 1
+            if agent.lastLendedTimestep == self.timestep:
+                loanVolume += agent.lastLoans
             agentWealthTotal += agentWealth
             agentWealthCollected += agentWealth - (agent.lastSugar + agent.lastSpice)
             agentWealthBurnRate += agentTimeToLive
@@ -1284,6 +1287,7 @@ class Sugarscape:
             remainingRaces = len(races)
             remainingTribes = len(tribes)
             tradeVolume = round(tradeVolume, 2)
+            loanVolume = round(loanVolume, 2)
             meanDeathsPercentage = round((numDeadAgents / numAgents) * 100, 2)
             sickAgentsPercentage = round((sickAgents / numAgents) * 100, 2)
             diseaseEffectiveReproductionRate = round(diseaseIncidence / len(infectors), 2) if len(infectors) > 0 else 0
@@ -1321,6 +1325,7 @@ class Sugarscape:
             remainingRaces = 0
             remainingTribes = 0
             tradeVolume = 0
+            loanVolume = 0
             diseaseEffectiveReproductionRate = 0
 
         for agent in self.replacedAgents:
@@ -1349,7 +1354,7 @@ class Sugarscape:
                         "population": numAgents, "sickAgents": sickAgents, 
                         "remainingRaces": remainingRaces, 
                         "remainingTribes": remainingTribes,
-                        "tradeVolume": tradeVolume, "meanDeathsPercentage": meanDeathsPercentage, "sickAgentsPercentage": sickAgentsPercentage,
+                        "tradeVolume": tradeVolume, "loanVolume": loanVolume, "meanDeathsPercentage": meanDeathsPercentage, "sickAgentsPercentage": sickAgentsPercentage,
                         "diseaseEffectiveReproductionRate": diseaseEffectiveReproductionRate, "diseaseIncidence": diseaseIncidence,
                         "diseasePrevalence": diseasePrevalence, "agentLastMoveOptimalityPercentage": agentLastMoveOptimalityPercentage
                         }
