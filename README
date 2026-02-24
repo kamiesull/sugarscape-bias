@@ -622,7 +622,7 @@ numSeeds: int
 
 plots: [string, ...]
     Set the plots to be created once data has been collected.
-    Options: "combatHappiness", "deaths", "familyHappiness", "happiness", "healthHappiness", "lifeExpectancy", "population", "selfishness", "socialHappiness", "totalWealth", "ttl", "wealth", "wealthHappiness"
+    Options: "ageism", "biasFactors", "combatHappiness", "deaths", "familyHappiness", "happiness", "healthHappiness", "lifeExpectancy", "population", "racism", "selfishness", "sexism", "socialHappiness", "totalWealth", "ttl", "wealth", "wealthHappiness"
     Default: ["deaths", "giniCoefficient", "happiness", "lifeExpectancy", "population", "sickness", "tradeVolume", "ttl", "wealth"]
 
 plotStatistic: string
