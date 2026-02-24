@@ -46,6 +46,9 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
     if "ageism" in config["plots"]:
         print(f"Generating {statistic} ageism plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_ageism.pdf", "meanAgeismFactor", f"{titleStatistic} Ageism Factor", "lower center", percentage=False, experimentalGroup=experimentalGroup)
+    if "biasFactors" in config["plots"]:
+        print(f"Generating {statistic} bias factors plot")
+        generatePlotForBiases(dataset, totalTimesteps, f"{statistic}_bias_factors.pdf", "Mean Bias Factors", "lower center", experimentalGroup=experimentalGroup)
     if "conflictHappiness" in config["plots"]:
         print(f"Generating {statistic} conflict happiness plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_conflict_happiness.pdf", "meanConflictHappiness", f"{titleStatistic} Conflict Happiness", "center right", percentage=False, experimentalGroup=experimentalGroup)
@@ -100,6 +103,52 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
     if "wealthHappiness" in config["plots"]:
         print(f"Generating {statistic} wealth happiness plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_total_wealth_happiness.pdf", "meanWealthHappiness", f"{titleStatistic} Wealth Happiness", "center right", percentage=False, experimentalGroup=experimentalGroup)
+
+def generatePlotForBiases(dataset, totalTimesteps, outfile, label, positioning, experimentalGroup=None):
+    matplotlib.pyplot.rcParams["font.family"] = "serif"
+    matplotlib.pyplot.rcParams["font.size"] = 18
+    modelCount = len(dataset)
+    figure, axes = matplotlib.pyplot.subplots(1, modelCount, figsize=(8 * modelCount, 6), squeeze=False)
+    x = [i for i in range(totalTimesteps + 1)]
+    y = [0 for i in range(totalTimesteps + 1)]
+    modelStrings = {"asimov": "Asimov's Robot", "bentham": "Utilitarian", "egoist": "Egoist", "altruist": "Altruist", "none": "Raw Sugarscape", "rawSugarscape": "Raw Sugarscape",
+                    "temperance": "Simple Temperance", "temperancePECS": "Complex Temperance", "multiple": "Multiple", "unknown": "Unknown"}
+    biasColumns = [("meanAgeismFactor", "Ageism", "green"), ("meanRacismFactor", "Racism", "red"), ("meanSexismFactor", "Sexism", "purple")]
+
+    for i, model in enumerate(dataset):
+        axesColumn = axes[0][i]
+        axesColumn.set(xlabel = "Timestep", ylabel = label, xlim = [0, totalTimesteps], ylim = [0, 1])
+        modelString = model
+        if '_' in model:
+            modelString = "multiple"
+        elif model not in modelStrings:
+            modelString = "unknown"
+        axesColumn.set_title(modelStrings[modelString])
+        if experimentalGroup != None:
+            for column, biasLabel, color in biasColumns:
+                controlGroupColumn = "control" + column[0].upper() + column[1:]
+                controlGroupLabel = f"Control {biasLabel}"
+                experimentalGroupColumn = experimentalGroup + column[0].upper() + column[1:]
+                experimentalGroupLabel = experimentalGroup[0].upper() + experimentalGroup[1:] + f" {biasLabel}"
+                # Prevent key error if all seeds went extinct for model
+                if column in dataset[model]["aggregates"]:
+                    y = [dataset[model]["aggregates"][controlGroupColumn][i] for i in range(totalTimesteps + 1)]
+                    if not any(value == -1 for value in y):
+                        axesColumn.plot(x, y, color=color, label=controlGroupLabel)
+                    y = [dataset[model]["aggregates"][experimentalGroupColumn][i] for i in range(totalTimesteps + 1)]
+                    if not any(value == -1 for value in y):
+                        axesColumn.plot(x, y, color=color, label=experimentalGroupLabel, linestyle="dotted")
+        else:
+            for column, biasLabel, color in biasColumns:
+                # Prevent key error if all seeds went extinct for model
+                if column in dataset[model]["aggregates"]:
+                    y = [dataset[model]["aggregates"][column][i] for i in range(totalTimesteps + 1)]
+                    if not any(value == -1 for value in y):
+                        axesColumn.plot(x, y, color=color, label=biasLabel)
+        axesColumn.legend(loc=positioning, labelspacing=0.1, frameon=False, fontsize=16)
+
+    figure.tight_layout()
+    figure.savefig(outfile, format="pdf", bbox_inches="tight")
 
 def generateSimpleLinePlot(models, dataset, totalTimesteps, outfile, column, label, positioning, percentage=False, experimentalGroup=None):
     matplotlib.pyplot.rcParams["font.family"] = "serif"
