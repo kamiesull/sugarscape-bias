@@ -82,6 +82,9 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
     if "racism" in config["plots"]:
         print(f"Generating {statistic} racism plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_racism.pdf", "meanRacismFactor", f"{titleStatistic} Racism Factor", "lower center", percentage=False, experimentalGroup=experimentalGroup)
+    if "reproductionInteractions" in config["plots"]:
+        print(f"Generating {statistic} reproduction interactions plot")
+        generateGroupInteractionLinePlot(models, dataset, totalTimesteps, f"{statistic}_reproduction_interactions.pdf", "reproduction", f"{titleStatistic} Reproduction Interactions", "center right")
     if "selfishness" in config["plots"]:
         print(f"Generating {statistic} selfishness plot")
         generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_selfishness.pdf", "meanSelfishness", f"{titleStatistic} Selfishness Factor", "lower center", percentage=False, experimentalGroup=experimentalGroup)
