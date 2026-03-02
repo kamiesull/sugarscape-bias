@@ -1259,7 +1259,11 @@ class Agent:
         if group == self.decisionModel:
             membership = True
         elif group == "ageInGroup":
-            membership = True if self.age >= self.inGroupAgeAbsoluteRange[0] and self.age <= self.inGroupAgeAbsoluteRange[1] else False
+            membership = False
+            for minAge, maxAge in self.inGroupAgeAbsoluteRange:
+                if self.age >= minAge and (self.age <= maxAge or maxAge == -1):
+                    membership = True
+                    break
         elif group == "depressed":
             membership = self.depressed
         elif "disease" in group:
