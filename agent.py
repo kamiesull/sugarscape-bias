@@ -34,6 +34,7 @@ class Agent:
         self.infertilityAge = configuration["infertilityAge"]
         self.inGroupAgeRelativeWindow = cell.environment.inGroupAgeRelativeWindow
         self.inGroupAgeAbsoluteRange = cell.environment.inGroupAgeAbsoluteRange
+        self.inGroupRaces = cell.environment.inGroupRaces
         self.inheritancePolicy = configuration["inheritancePolicy"]
         self.lendingFactor = configuration["lendingFactor"]
         self.loanDuration = configuration["loanDuration"]
@@ -978,7 +979,7 @@ class Agent:
                     inGroupAge += 1
 
                 neighborRace = neighbor.findRace()
-                if neighborRace == self.findRace() or neighborRace in self.cell.environment.inGroupRaces:
+                if neighborRace == self.findRace() or neighborRace in self.inGroupRaces:
                     inGroupRace += 1
                 if neighbor.sex == self.sex:
                     inGroupSex += 1
@@ -1268,6 +1269,8 @@ class Agent:
             membership = True if self.sex == "female" else False
         elif group == "male":
             membership = True if self.sex == "male" else False
+        elif group == "raceInGroup":
+            membership = self.race in self.inGroupRaces
         elif "race" in group:
             raceID = int(re.search(r"race(?P<ID>\d+)", group).group("ID"))
             membership = self.race == raceID

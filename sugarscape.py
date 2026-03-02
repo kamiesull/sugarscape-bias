@@ -1541,6 +1541,12 @@ def verifyConfiguration(configuration):
             if experimentalDiseaseID == None:
                 configuration["experimentalGroup"] = "sick"
 
+    # If no specific race is tracked, revert to generic in-group races experimental group
+    if configuration["experimentalGroup"] != None and "race" in configuration["experimentalGroup"]:
+        experimentalRaceID = re.search(r"race(?P<ID>\d+)", configuration["experimentalGroup"])
+        if experimentalRaceID == None:
+            configuration["experimentalGroup"] = "raceInGroup"
+
     if configuration["environmentMaxSpice"] < 0:
         configuration["environmentMaxSpice"] = random.randint(1, 10)
     if configuration["environmentMaxSugar"] < 0:
@@ -1789,12 +1795,12 @@ def verifyConfiguration(configuration):
     # Ensure experimental group is properly defined or otherwise ignored
     if configuration["experimentalGroup"] == "":
         configuration["experimentalGroup"] = None
-    groupList = ["ageInGroup", "depressed", "female", "male", "sick"]
+    groupList = ["ageInGroup", "depressed", "female", "raceInGroup", "male", "sick"]
     if type(configuration["agentDecisionModels"]) == str:
         groupList.append(configuration["agentDecisionModels"])
     else:
         groupList += configuration["agentDecisionModels"]
-    if configuration["experimentalGroup"] != None and configuration["experimentalGroup"] not in groupList and "disease" not in configuration["experimentalGroup"] and ("race" not in configuration["experimentalGroup"] or configuration["experimentalGroup"] == "race"):
+    if configuration["experimentalGroup"] != None and configuration["experimentalGroup"] not in groupList and "disease" not in configuration["experimentalGroup"] and "race" not in configuration["experimentalGroup"]:
         if "all" in configuration["debugMode"] or "agent" in configuration["debugMode"]:
             print(f"Cannot provide separate log stats for experimental group {configuration['experimentalGroup']}. Disabling separate log stats.")
         configuration["experimentalGroup"] = None
