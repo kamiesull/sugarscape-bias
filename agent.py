@@ -1264,6 +1264,10 @@ class Agent:
                 if self.age >= minAge and (self.age <= maxAge or maxAge == -1):
                     membership = True
                     break
+        elif "ageRange" in group:
+            ageRangeID = int(re.search(r"ageRange(?P<ID>\d+)", group).group("ID"))
+            minAge, maxAge = self.inGroupAgeAbsoluteRange[ageRangeID]
+            membership = self.age >= minAge and (self.age <= maxAge or maxAge == -1)
         elif group == "depressed":
             membership = self.depressed
         elif "disease" in group:

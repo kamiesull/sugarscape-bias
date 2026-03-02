@@ -1535,6 +1535,12 @@ def verifyConfiguration(configuration):
     if negativeFlag > 0:
         print(f"Detected negative values provided for {negativeFlag} option(s). Setting these values to zero.")
 
+    # If no specific age range is tracked, revert to generic in-group age ranges experimental group
+    if configuration["experimentalGroup"] != None and "ageRange" in configuration["experimentalGroup"]:
+        experimentalAgeRangeID = re.search(r"ageRange(?P<ID>\d+)", configuration["experimentalGroup"])
+        if experimentalAgeRangeID == None:
+            configuration["experimentalGroup"] = "ageInGroup"
+
     # If no specific disease is tracked, revert to generic sick experimental group
     if configuration["experimentalGroup"] != None and "disease" in configuration["experimentalGroup"]:
             experimentalDiseaseID = re.search(r"disease(?P<ID>\d+)", configuration["experimentalGroup"])
@@ -1800,7 +1806,7 @@ def verifyConfiguration(configuration):
         groupList.append(configuration["agentDecisionModels"])
     else:
         groupList += configuration["agentDecisionModels"]
-    if configuration["experimentalGroup"] != None and configuration["experimentalGroup"] not in groupList and "disease" not in configuration["experimentalGroup"] and "race" not in configuration["experimentalGroup"]:
+    if configuration["experimentalGroup"] != None and configuration["experimentalGroup"] not in groupList and "ageRange" not in configuration["experimentalGroup"] and "disease" not in configuration["experimentalGroup"] and "race" not in configuration["experimentalGroup"]:
         if "all" in configuration["debugMode"] or "agent" in configuration["debugMode"]:
             print(f"Cannot provide separate log stats for experimental group {configuration['experimentalGroup']}. Disabling separate log stats.")
         configuration["experimentalGroup"] = None
