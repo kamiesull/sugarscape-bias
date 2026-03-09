@@ -968,14 +968,14 @@ class Agent:
             inGroupTribe = 0
             for neighbor in potentialNeighbors:
                 neighborAge = neighbor.age
-                inRelativeAgeWindow = abs(neighborAge - self.age) <= self.inGroupAgeRelativeWindow
-                inAbsoluteAgeRange = False
-                for minAge, maxAge in self.inGroupAgeAbsoluteRange:
+                inRelativeAgeRange = abs(neighborAge - self.age) <= self.cell.environment.inGroupAgeRelativeRange
+                inAbsoluteAgeRanges = False
+                for minAge, maxAge in self.cell.environment.inGroupAgeAbsoluteRanges:
                     if neighborAge >= minAge and (neighborAge <= maxAge or maxAge == -1):
-                        inAbsoluteAgeRange = True
+                        inAbsoluteAgeRanges = True
                         break
                 # Neighbor is considered in-group for age if within relative or absolute age range
-                if inRelativeAgeWindow or inAbsoluteAgeRange:
+                if inRelativeAgeRange or inAbsoluteAgeRanges:
                     inGroupAge += 1
 
                 neighborRace = neighbor.findRace()

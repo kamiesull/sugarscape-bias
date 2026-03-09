@@ -58,6 +58,8 @@
     "diseaseTagStringLength": [11, 21],
     "diseaseTransmissionChance": [1.0, 1.0],
     "diseaseVisionPenalty": [-1, 1],
+    "environmentAgeistAbsoluteRanges": [[0, 10], [60, 100]],
+    "environmentAgeistRelativeRange": 10,
     "environmentEquator": -1,
     "environmentHeight": 50,
     "environmentInGroupAgeAbsoluteRange": [[0, 10], [60, 100]],

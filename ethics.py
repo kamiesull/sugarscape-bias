@@ -7,7 +7,6 @@ import sys
 class Asimov(agent.Agent):
     def __init__(self, agentID, birthday, cell, configuration):
         super().__init__(agentID, birthday, cell, configuration)
-        self.lastTimeToLive = 0
 
     def findBestEthicalCell(self, cells, greedyBestCell=None):
         if len(cells) == 0:
@@ -156,6 +155,8 @@ class Bentham(agent.Agent):
         neighborhoodSize = len(self.neighborhood)
         futureNeighborhoodSize = len(self.findNeighborhood(cell)) if self.decisionModelLookaheadFactor != 0 else 1
         for neighbor in self.neighborhood:
+            if neighbor.isAlive() == False:
+                continue
             certainty = 1 if neighbor.canReachCell(cell) == True else 0
             # Skip if agent cannot reach cell
             if certainty == 0:
@@ -194,9 +195,9 @@ class Bentham(agent.Agent):
 
             if self.decisionModelAgeismFactor >= 0:
                 neighborAge = neighbor.age
-                inRelativeAgeWindow = abs(neighborAge - self.age) <= self.cell.environment.inGroupAgeRelativeWindow
+                inRelativeAgeWindow = abs(neighborAge - self.age) <= self.cell.environment.inGroupAgeRelativeRange
                 inAbsoluteAgeRange = False
-                for minAge, maxAge in self.inGroupAgeAbsoluteRange:
+                for minAge, maxAge in self.cell.environment.inGroupAgeAbsoluteRanges:
                     if neighborAge >= minAge and (neighborAge <= maxAge or maxAge == -1):
                         inAbsoluteAgeRange = True
                         break

@@ -23,6 +23,9 @@ make data
     Run a number of random seeds comparing selected decision models.
     Note: Results will be saved in the data subdirectory.
 
+make lean
+    Clean up working files and plots created by the software but keep any logs and datasets. 
+
 make plots
     Generate graph plots from any JSON files in the data subdirectory.
     Note: Plots are dependent on a dataset existing and will create it if necessary.
@@ -410,15 +413,15 @@ environmentHeight: int
     Set the height in cells of the Sugarscape environment.
     Default: 50
 
-environmentInGroupAgeAbsoluteRange: [[int, int], ...]
-    Set range(s) within which agents are considered in-group for age, even if outside of environmentInGroupAgeRelativeWindow.
-    Note: Use -1 to represent minimum age or maximum age possible for agents.
-    Note: Disable with empty list. If disabled, agents will only use environmentInGroupAgeRelativeWindow to determine age grouping of other agents.
+environmentAgeistAbsoluteRanges: [[int, int], ...]
+    Set specific range(s) within which agents are considered in-group for age.
+    Note: A value of -1 as the second element of an age range sets the value to the maximum possible age for agents.
+    Note: Providing an empty list disables in-groups defined by specific age ranges.
     Default: []
 
-environmentInGroupAgeRelativeWindow: int
-    Set a range where agents with age within +/- of this variable are considered in-group for age, even if outside of environmentInGroupAgeAbsoluteRange.
-    Note: Use -1 to disable. If disabled, agents will only use environmentInGroupAgeAbsoluteRange to determine age grouping of other agents.
+environmentAgeistRelativeRange: int
+    Set the value for which agents are considered in-group for age when within the specified number of timesteps in age to another agent.
+    Note: Use -1 to disable.
     Default: -1
 
 environmentInGroupRaces: [int, ...]
