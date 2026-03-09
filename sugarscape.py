@@ -538,6 +538,41 @@ class Sugarscape:
         tags = [0 for i in range(zeroes)] + [1 for i in range(ones)]
         random.shuffle(tags)
         return tags
+    
+    def isAgentInGroup(self, agent, group, notInGroup=False):
+        membership = False
+        if group == agent.decisionModel:
+            membership = True
+        elif group == "ageInGroup":
+            membership = False
+            for minAge, maxAge in self.environment.inGroupAgeAbsoluteRanges:
+                if agent.age >= minAge and (agent.age <= maxAge or maxAge == -1):
+                    membership = True
+                    break
+        elif "ageRange" in group:
+            ageRangeID = int(re.search(r"ageRange(?P<ID>\d+)", group).group("ID"))
+            minAge, maxAge = self.environment.inGroupAgeAbsoluteRanges[ageRangeID]
+            membership = agent.age >= minAge and (agent.age <= maxAge or maxAge == -1)
+        elif group == "depressed":
+            membership = agent.depressed
+        elif "disease" in group:
+            diseaseID = re.search(r"disease(?P<ID>\d+)", group).group("ID")
+            membership = agent.isInfectedWithDisease(diseaseID)
+        elif group == "female":
+            membership = True if agent.sex == "female" else False
+        elif group == "male":
+            membership = True if agent.sex == "male" else False
+        elif group == "raceInGroup":
+            membership = agent.race in self.environment.inGroupRaces
+        elif "race" in group:
+            raceID = int(re.search(r"race(?P<ID>\d+)", group).group("ID"))
+            membership = agent.race == raceID
+        elif group == "sick":
+            membership = agent.isSick()
+
+        if notInGroup == True:
+            membership = not membership
+        return membership
 
     def isDiseaseExperimentalGroup(self, diseaseID):
         if self.experimentalGroup == None:
@@ -1085,7 +1120,7 @@ class Sugarscape:
         meanMoveDifferenceFromOptimal = 0
 
         for agent in self.agents:
-            if group != None and agent.isInGroup(group, notInGroup) == False:
+            if group != None and self.isAgentInGroup(agent, group, notInGroup) == False:
                 continue
             agentTimeToLive = agent.findTimeToLive()
             agentTimeToLiveAgeLimited = agent.findTimeToLive(True)
@@ -1124,7 +1159,7 @@ class Sugarscape:
             meanNeighbors += len(agent.movementNeighborhood)
             if self.experimentalGroup != None:
                 for neighbor in agent.movementNeighborhood:
-                    if neighbor.isInGroup(self.experimentalGroup, notInGroup=True):
+                    if self.isAgentInGroup(neighbor, self.experimentalGroup, notInGroup=True):
                         meanControlNeighbors += 1
                     else:
                         meanExperimentalNeighbors += 1
@@ -1150,7 +1185,7 @@ class Sugarscape:
                 tribes[agent.tribe] = 1
             else:
                 tribes[agent.tribe] += 1
-            if group != None and agent.isInGroup(group):
+            if group != None and self.isAgentInGroup(agent, group):
                 combatExperimentalToControl += agent.combatWithControlGroup
                 combatExperimentalToExperimental += agent.combatWithExperimentalGroup
                 diseaseExperimentalToControl += agent.diseaseWithControlGroup
@@ -1162,7 +1197,7 @@ class Sugarscape:
                 tradeExperimentalToControl += agent.tradeWithControlGroup
                 tradeExperimentalToExperimental += agent.tradeWithExperimentalGroup
                 agent.resetTimestepMetrics()
-            elif group != None and agent.isInGroup(group, notInGroup=True):
+            elif group != None and self.isAgentInGroup(agent, group, notInGroup=True):
                 combatControlToControl += agent.combatWithControlGroup
                 combatControlToExperimental += agent.combatWithExperimentalGroup
                 diseaseControlToControl += agent.diseaseWithControlGroup
@@ -1191,7 +1226,7 @@ class Sugarscape:
         numDeadAgents = 0
         meanAgeAtDeath = 0
         for agent in self.deadAgents:
-            if group != None and agent.isInGroup(group, notInGroup) == False:
+            if group != None and self.isAgentInGroup(agent, group, notInGroup) == False:
                 continue
             # If agent moved this timestep but died, count its movement optimality
             if agent.timestep == self.timestep:
@@ -1205,7 +1240,7 @@ class Sugarscape:
             agentCombatDeaths += 1 if agent.causeOfDeath == "combat" else 0
             agentDiseaseDeaths += 1 if agent.diseaseDeath == True else 0
             agentStarvationDeaths += 1 if agent.causeOfDeath == "starvation" else 0
-            if group != None and agent.isInGroup(group):
+            if group != None and self.isAgentInGroup(agent, group):
                 combatExperimentalToControl += agent.combatWithControlGroup
                 combatExperimentalToExperimental += agent.combatWithExperimentalGroup
                 diseaseExperimentalToControl += agent.diseaseWithControlGroup
@@ -1216,7 +1251,7 @@ class Sugarscape:
                 reproductionExperimentalToExperimental += agent.reproductionWithExperimentalGroup
                 tradeExperimentalToControl += agent.tradeWithControlGroup
                 tradeExperimentalToExperimental += agent.tradeWithExperimentalGroup
-            elif group != None and agent.isInGroup(group, notInGroup=True):
+            elif group != None and self.isAgentInGroup(agent, group, notInGroup=True):
                 combatControlToControl += agent.combatWithControlGroup
                 combatControlToExperimental += agent.combatWithExperimentalGroup
                 diseaseControlToControl += agent.diseaseWithControlGroup
@@ -1328,12 +1363,12 @@ class Sugarscape:
             diseaseEffectiveReproductionRate = 0
 
         for agent in self.replacedAgents:
-            if group != None and agent.isInGroup(group, notInGroup) == False:
+            if group != None and self.isAgentInGroup(agent, group, notInGroup) == False:
                 continue
             agentsReplaced += 1
 
         for agent in self.bornAgents:
-            if group != None and agent.isInGroup(group, notInGroup) == False:
+            if group != None and self.isAgentInGroup(agent, group, notInGroup) == False:
                 continue
             agentsBorn += 1
 
