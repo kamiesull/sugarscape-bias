@@ -32,9 +32,6 @@ class Agent:
         self.leader = not self.follower
         self.immuneSystem = configuration["immuneSystem"]
         self.infertilityAge = configuration["infertilityAge"]
-        self.inGroupAgeRelativeWindow = cell.environment.inGroupAgeRelativeWindow
-        self.inGroupAgeAbsoluteRange = cell.environment.inGroupAgeAbsoluteRange
-        self.inGroupRaces = cell.environment.inGroupRaces
         self.inheritancePolicy = configuration["inheritancePolicy"]
         self.lendingFactor = configuration["lendingFactor"]
         self.loanDuration = configuration["loanDuration"]
@@ -979,7 +976,7 @@ class Agent:
                     inGroupAge += 1
 
                 neighborRace = neighbor.findRace()
-                if neighborRace == self.findRace() or neighborRace in self.inGroupRaces:
+                if neighborRace == self.findRace() or neighborRace in self.cell.environment.inGroupRaces:
                     inGroupRace += 1
                 if neighbor.sex == self.sex:
                     inGroupSex += 1
