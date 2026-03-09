@@ -1880,8 +1880,6 @@ if __name__ == "__main__":
                      "environmentEquator": -1,
                      "environmentFile": None,
                      "environmentHeight": 50,
-                     "environmentInGroupAgeAbsoluteRange": [],
-                     "environmentInGroupAgeRelativeWindow": -1,
                      "environmentInGroupRaces": [],
                      "environmentMaxCombatLoot": 0,
                      "environmentMaxRaces": 0,
