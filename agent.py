@@ -1257,13 +1257,13 @@ class Agent:
             membership = True
         elif group == "ageInGroup":
             membership = False
-            for minAge, maxAge in self.inGroupAgeAbsoluteRange:
+            for minAge, maxAge in self.cell.environment.inGroupAgeAbsoluteRanges:
                 if self.age >= minAge and (self.age <= maxAge or maxAge == -1):
                     membership = True
                     break
         elif "ageRange" in group:
             ageRangeID = int(re.search(r"ageRange(?P<ID>\d+)", group).group("ID"))
-            minAge, maxAge = self.inGroupAgeAbsoluteRange[ageRangeID]
+            minAge, maxAge = self.cell.environment.inGroupAgeAbsoluteRanges[ageRangeID]
             membership = self.age >= minAge and (self.age <= maxAge or maxAge == -1)
         elif group == "depressed":
             membership = self.depressed
@@ -1275,7 +1275,7 @@ class Agent:
         elif group == "male":
             membership = True if self.sex == "male" else False
         elif group == "raceInGroup":
-            membership = self.race in self.inGroupRaces
+            membership = self.race in self.cell.environment.inGroupRaces
         elif "race" in group:
             raceID = int(re.search(r"race(?P<ID>\d+)", group).group("ID"))
             membership = self.race == raceID
