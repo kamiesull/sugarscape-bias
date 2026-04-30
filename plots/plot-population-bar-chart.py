@@ -177,7 +177,7 @@ def generate_bar_chart(
         means.extend([value[0] for value in series[label] if value[0] is not None])
         stdDevs.extend([value[1] for value in series[label] if value[1] is not None])
     if len(means) == 0:
-        raise ValueError(f"CSV file {csv_path} does not contain any averaged life expectancy values.")
+        raise ValueError(f"CSV file {csv_path} does not contain any values.")
 
     y_min = min(means) - max(stdDevs) if len(stdDevs) > 0 else min(means)
     y_max = max(means) + max(stdDevs) if len(stdDevs) > 0 else max(means)
@@ -235,7 +235,7 @@ def main():
         print(f"CSV path {csv_path} must point to a .csv file.")
         print_help()
 
-    print(f"Generating averaged life expectancy plot from {csv_path}")
+    print(f"Generating plot from {csv_path}")
     generate_bar_chart(
         csv_path,
         output_path,

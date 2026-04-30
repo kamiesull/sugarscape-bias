@@ -660,7 +660,7 @@ def main():
     config_prefix = os.path.splitext(os.path.basename(config_path))[0]
     stdDevs, means, extinctions = scan_dataset(path, experimental_group)
     if means is None:
-        print("No valid data found to compute life expectancy metrics.")
+        print("No valid data found to compute metrics.")
         exit(1)
 
     append_to_csv(

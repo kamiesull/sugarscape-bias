@@ -48,7 +48,7 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
     titleStatistic = statistic.title()
     if "ageism" in config["plots"]:
         print(f"Generating {statistic} ageism plot")
-        generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_ageism.pdf", "meanAgeismFactor", f"{titleStatistic} Ageism Factor", "lower center", percentage=False, experimentalGroup=experimentalGroup)
+        generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_ageism.pdf", "meanAgeismFactor", f"{titleStatistic} Ageism Factor", "lower center", percentage=False, experimentalGroup=experimentalGroup, plotGroups=plotGroups)
     if "biasFactors" in config["plots"]:
         print(f"Generating {statistic} bias factors plot")
         generatePlotForBiases(dataset, totalTimesteps, f"{statistic}_bias_factors.pdf", "Mean Bias Factors", "lower center", experimentalGroup=experimentalGroup)

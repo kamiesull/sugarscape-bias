@@ -235,7 +235,7 @@ def main():
         print(f"CSV path {csv_path} must point to a .csv file.")
         print_help()
 
-    print(f"Generating averaged life expectancy plot from {csv_path}")
+    print(f"Generating plot from {csv_path}")
     generate_bar_chart(
         csv_path,
         output_path,
