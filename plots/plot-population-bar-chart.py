@@ -87,7 +87,7 @@ def parse_options():
 
 def print_help():
     print(
-        "Usage:\n\tpython plot-averaged-population-csv.py --path /path/to/population.csv [--output /path/to/output.pdf]\n\n"
+        "Usage:\n\tpython plot-population-bar-chart.py --path /path/to/population.csv [--output /path/to/output.pdf]\n\n"
         "Options:\n"
         "\t-p,--path\tUse the specified CSV file produced by print-reporting.py's population output.\n"
         "\t-o,--output\tOptional path for the generated plot. Defaults to a PDF next to the input CSV.\n"
