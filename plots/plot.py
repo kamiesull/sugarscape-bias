@@ -37,10 +37,10 @@ def findMeansByConfig(dataset):
                 if configBasePrefix not in dataset[model]["aggregates"][column]:
                     dataset[model]["aggregates"][column][configBasePrefix] = {}
                     dataset[model]["standardDeviations"][column][configBasePrefix] = {}
-                for configNumRange, per_run_averages in ranges.items():
+                for configNumRange, per_run_metrics in ranges.items():
                     # Aggregate across runs within this config
-                    dataset[model]["standardDeviations"][column][configBasePrefix][configNumRange] = statistics.stdev(per_run_averages) if len(per_run_averages) > 1 else 0
-                    dataset[model]["aggregates"][column][configBasePrefix][configNumRange] = sum(per_run_averages) / len(per_run_averages) if per_run_averages else None
+                    dataset[model]["standardDeviations"][column][configBasePrefix][configNumRange] = statistics.stdev(per_run_metrics) if len(per_run_metrics) > 1 else 0
+                    dataset[model]["aggregates"][column][configBasePrefix][configNumRange] = sum(per_run_metrics) / len(per_run_metrics) if per_run_metrics else None
     return dataset
 
 def findMedians(dataset):
@@ -76,22 +76,21 @@ def findSameGroupInteractionProportionsAcrossTimesteps(dataset, model, rawData, 
         if int(item["timestep"]) > totalTimesteps:
             break
         
-        same_group_lending = item.get("lendingControlGroupToControlGroup", 0) + item.get("lendingExperimentalGroupToExperimentalGroup", 0)
-        same_group_reproduction = item.get("reproductionControlGroupToControlGroup", 0) + item.get("reproductionExperimentalGroupToExperimentalGroup", 0)
-        same_group_trade = item.get("tradeControlGroupToControlGroup", 0) + item.get("tradeExperimentalGroupToExperimentalGroup", 0)
+        same_group_lending = float(item.get("lendingControlGroupToControlGroup", 0)) + float(item.get("lendingExperimentalGroupToExperimentalGroup", 0))
+        same_group_reproduction = float(item.get("reproductionControlGroupToControlGroup", 0)) + float(item.get("reproductionExperimentalGroupToExperimentalGroup", 0))
+        same_group_trade = float(item.get("tradeControlGroupToControlGroup", 0)) + float(item.get("tradeExperimentalGroupToExperimentalGroup", 0))
 
         same_group_sums["lending"] += same_group_lending
         same_group_sums["reproduction"] += same_group_reproduction
         same_group_sums["trade"] += same_group_trade
 
-        total_sums["lending"] += same_group_lending + item.get("lendingControlGroupToExperimentalGroup", 0) + item.get("lendingExperimentalGroupToControlGroup", 0)
-        total_sums["reproduction"] += same_group_reproduction + item.get("reproductionControlGroupToExperimentalGroup", 0) + item.get("reproductionExperimentalGroupToControlGroup", 0)
-        total_sums["trade"] += same_group_trade + item.get("tradeControlGroupToExperimentalGroup", 0) + item.get("tradeExperimentalGroupToControlGroup", 0)
+        total_sums["lending"] += same_group_lending + float(item.get("lendingControlGroupToExperimentalGroup", 0)) + float(item.get("lendingExperimentalGroupToControlGroup", 0))
+        total_sums["reproduction"] += same_group_reproduction + float(item.get("reproductionControlGroupToExperimentalGroup", 0)) + float(item.get("reproductionExperimentalGroupToControlGroup", 0))
+        total_sums["trade"] += same_group_trade + float(item.get("tradeControlGroupToExperimentalGroup", 0)) + float(item.get("tradeExperimentalGroupToControlGroup", 0))
 
-    # -1 represents no interactions of this type
-    lending_proportion = same_group_sums["lending"] / total_sums["lending"] if total_sums["lending"] > 0 else -1
-    reproduction_proportion = same_group_sums["reproduction"] / total_sums["reproduction"] if total_sums["reproduction"] > 0 else -1
-    trade_proportion = same_group_sums["trade"] / total_sums["trade"] if total_sums["trade"] > 0 else -1
+    lending_proportion = same_group_sums["lending"] / total_sums["lending"] if total_sums["lending"] > 0 else None
+    reproduction_proportion = same_group_sums["reproduction"] / total_sums["reproduction"] if total_sums["reproduction"] > 0 else None
+    trade_proportion = same_group_sums["trade"] / total_sums["trade"] if total_sums["trade"] > 0 else None
 
     if "lending_same_group_proportion" not in dataset[model]["metrics"]:
         dataset[model]["metrics"]["lending_same_group_proportion"] = {}
@@ -99,7 +98,7 @@ def findSameGroupInteractionProportionsAcrossTimesteps(dataset, model, rawData, 
         dataset[model]["metrics"]["lending_same_group_proportion"][configBasePrefix] = {}
     if configNumRange not in dataset[model]["metrics"]["lending_same_group_proportion"][configBasePrefix]:
         dataset[model]["metrics"]["lending_same_group_proportion"][configBasePrefix][configNumRange] = []
-    if lending_proportion is not None and lending_proportion != -1:
+    if lending_proportion is not None:
         dataset[model]["metrics"]["lending_same_group_proportion"][configBasePrefix][configNumRange].append(lending_proportion)
 
     if "reproduction_same_group_proportion" not in dataset[model]["metrics"]:
@@ -108,7 +107,7 @@ def findSameGroupInteractionProportionsAcrossTimesteps(dataset, model, rawData, 
         dataset[model]["metrics"]["reproduction_same_group_proportion"][configBasePrefix] = {}
     if configNumRange not in dataset[model]["metrics"]["reproduction_same_group_proportion"][configBasePrefix]:
         dataset[model]["metrics"]["reproduction_same_group_proportion"][configBasePrefix][configNumRange] = []
-    if reproduction_proportion is not None and reproduction_proportion != -1:
+    if reproduction_proportion is not None:
         dataset[model]["metrics"]["reproduction_same_group_proportion"][configBasePrefix][configNumRange].append(reproduction_proportion)
 
     if "trade_same_group_proportion" not in dataset[model]["metrics"]:
@@ -117,7 +116,7 @@ def findSameGroupInteractionProportionsAcrossTimesteps(dataset, model, rawData, 
         dataset[model]["metrics"]["trade_same_group_proportion"][configBasePrefix] = {}
     if configNumRange not in dataset[model]["metrics"]["trade_same_group_proportion"][configBasePrefix]:
         dataset[model]["metrics"]["trade_same_group_proportion"][configBasePrefix][configNumRange] = []
-    if trade_proportion is not None and trade_proportion != -1:
+    if trade_proportion is not None:
         dataset[model]["metrics"]["trade_same_group_proportion"][configBasePrefix][configNumRange].append(trade_proportion)
 
 def findWeightedAverageAcrossTimesteps(dataset, model, rawData, entry, configBasePrefix, configNumRange, experimentalGroup=None):
@@ -245,7 +244,7 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
             generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_loans.pdf", "loanVolume", f"{titleStatistic} Loan Volume", "center right", percentage=False, experimentalGroup=experimentalGroup, plotGroups=plotGroups, xlabel=xlabel)
     if "lendingInteractions" in config["plots"]:
         if statistic == "meansByConfig":
-            print(f"{statistic} lending interactions plot function does not exist, skipping")
+            print(f"{statistic} lending interactions plot function does not exist, skipping. Use same-group interactions plot instead")
         else:
             print(f"Generating {statistic} lending interactions plot")
             generateGroupInteractionLinePlot(models, dataset, totalTimesteps, f"{statistic}_lending_interactions.pdf", "lending", f"{titleStatistic} Lending Interactions", "center right", xlabel=xlabel)
@@ -264,9 +263,15 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
     if "reproductionInteractions" in config["plots"]:
         print(f"Generating {statistic} reproduction interactions plot")
         if statistic == "meansByConfig":
-            print(f"{statistic} reproduction interactions plot function does not exist, skipping")
+            print(f"{statistic} reproduction interactions plot function does not exist, skipping. Use same-group interactions plot instead")
         else:
             generateGroupInteractionLinePlot(models, dataset, totalTimesteps, f"{statistic}_reproduction_interactions.pdf", "reproduction", f"{titleStatistic} Reproduction Interactions", "center right", xlabel=xlabel)
+    if "sameGroupInteractions" in config["plots"]:
+        print(f"Generating {statistic} same-group interactions plot")
+        if statistic != "meansByConfig":
+            print(f"{statistic} same-group interactions plot function does not exist, skipping. Use individual interaction plots instead")
+        else:
+            generateSameGroupInteractionPercentageBarChart(dataset, config.get("plotConfigPrefixesWithExperimentalGroups", {}), f"{statistic}_same_group_interactions.pdf", "Same-Group Interactions", "best", xlabel=xlabel)
     if "selfishness" in config["plots"]:
         print(f"Generating {statistic} selfishness plot")
         if statistic == "meansByConfig":
@@ -305,7 +310,7 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
             generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_trades.pdf", "tradeVolume", f"{titleStatistic} Trade Volume", "center right", percentage=False, experimentalGroup=experimentalGroup, plotGroups=plotGroups, xlabel=xlabel)
     if "tradeInteractions" in config["plots"]:
         if statistic == "meansByConfig":
-            print(f"{statistic} trade interactions plot function does not exist, skipping")
+            print(f"{statistic} trade interactions plot function does not exist, skipping. Use same-group interactions plot instead")
         else:
             print(f"Generating {statistic} trade interactions plot")
             generateGroupInteractionLinePlot(models, dataset, totalTimesteps, f"{statistic}_trade_interactions.pdf", "trade", f"{titleStatistic} Trade Interactions", "center right", xlabel=xlabel)
@@ -404,6 +409,109 @@ def generatePlotForBiases(dataset, totalTimesteps, outfile, label, positioning, 
         modelOutfile = outfile.replace(".pdf", f"_{model}_model.pdf")
         figure.savefig(modelOutfile, format="pdf", bbox_inches="tight")
         matplotlib.pyplot.close(figure)
+
+def generateSameGroupInteractionPercentageBarChart(dataset, configPrefixesWithExperimentalGroups, outfile, label, positioning, xlabel="Configuration"):
+    # Loop through each config prefix, producing separate plots for each
+    for configPrefix, experimentalGroup in configPrefixesWithExperimentalGroups.items():
+        matplotlib.pyplot.rcParams["font.family"] = "serif"
+        matplotlib.pyplot.rcParams["font.size"] = 18
+
+        allNumberRanges = set()
+        for model in dataset:
+            for interaction_proportion_column in ["lending_same_group_proportion", "reproduction_same_group_proportion", "trade_same_group_proportion"]:
+                if interaction_proportion_column not in dataset[model]["aggregates"]:
+                    continue
+                if configPrefix not in dataset[model]["aggregates"][interaction_proportion_column]:
+                    continue
+                allNumberRanges.update(dataset[model]["aggregates"][interaction_proportion_column][configPrefix].keys())
+        allNumberRangesInOrder = sorted(list(allNumberRanges), key=lambda numRange: float(numRange.split("-")[0]))
+
+        x = list(range(len(allNumberRangesInOrder)))
+        labels = allNumberRangesInOrder
+        xlabel = "Configuration" if xlabel is None else xlabel
+        modelStrings = {"asimov": "Asimov's Robot", "bentham": "Utilitarian", "egoist": "Egoist", "altruist": "Altruist", "none": "Raw Sugarscape", "rawSugarscape": "Raw Sugarscape",
+                        "temperance": "Simple Temperance", "temperancePECS": "Complex Temperance", "multiple": "Multiple", "unknown": "Unknown"}
+        interactionColors = {"lending": "magenta", "reproduction": "gold", "trade": "cyan"}
+
+        # Calculate bar width and positions based on number of bars being plotted to ensure bars fit within axis bounds
+        group_width = 0.8
+        number_of_bars = 3
+        bar_width = group_width / max(1, number_of_bars)
+        start_offset = -group_width / 2 + bar_width / 2
+        
+        for model in dataset:
+            figure, axes = matplotlib.pyplot.subplots(figsize=(max(10, len(allNumberRangesInOrder) * 0.75), 7))
+            axes.set(xlabel = xlabel, ylabel = label, xlim = [-0.5, len(allNumberRangesInOrder) - 0.5])
+            axes.set_xticks(x)
+            axes.set_xticklabels(labels, rotation=45, ha="right")
+            modelString = model
+            if '_' in model:
+                modelString = "multiple"
+            elif model not in modelStrings:
+                modelString = "unknown"
+
+            lendingColumn = "lending_same_group_proportion"
+            lendingLabel = "Lending"
+            reproductionColumn = "reproduction_same_group_proportion"
+            reproductionLabel = "Reproduction"
+            tradeColumn = "trade_same_group_proportion"
+            tradeLabel = "Trade"
+
+            if lendingColumn in dataset[model]["aggregates"]:
+                bar_positions_experimental = [curr_x + start_offset for curr_x in x]
+                y, y_err = [], []
+                for numRange in allNumberRangesInOrder:
+                    if numRange in dataset[model]["aggregates"][lendingColumn][configPrefix]:
+                        y.append(dataset[model]["aggregates"][lendingColumn][configPrefix][numRange] * 100)
+                        if numRange in dataset[model]["standardDeviations"][lendingColumn][configPrefix]:
+                            y_err.append(dataset[model]["standardDeviations"][lendingColumn][configPrefix][numRange] * 100)
+                        else:
+                            y_err.append(0.0)
+                    else:
+                        y.append(0.0)
+                        y_err.append(0.0)
+                
+                axes.bar(bar_positions_experimental, y, color=interactionColors["lending"], label=lendingLabel, width=bar_width)
+                axes.errorbar(bar_positions_experimental, y, yerr=y_err, fmt="none", ecolor="black", capsize=10, elinewidth=2)
+            
+            if reproductionColumn in dataset[model]["aggregates"]:
+                bar_positions_control = [curr_x + start_offset + bar_width for curr_x in x]
+                y, y_err = [], []
+                for numRange in allNumberRangesInOrder:
+                    if numRange in dataset[model]["aggregates"][reproductionColumn][configPrefix]:
+                        y.append(dataset[model]["aggregates"][reproductionColumn][configPrefix][numRange] * 100)
+                        if numRange in dataset[model]["standardDeviations"][reproductionColumn][configPrefix]:
+                            y_err.append(dataset[model]["standardDeviations"][reproductionColumn][configPrefix][numRange] * 100)
+                        else:
+                            y_err.append(0.0)
+                    else:
+                        y.append(0.0)
+                        y_err.append(0.0)
+                
+                axes.bar(bar_positions_control, y, color=interactionColors["reproduction"], label=reproductionLabel, width=bar_width)
+                axes.errorbar(bar_positions_control, y, yerr=y_err, fmt="none", ecolor="black", capsize=10, elinewidth=2)
+            
+            if tradeColumn in dataset[model]["aggregates"]:
+                bar_positions_control = [curr_x + start_offset + (2 * bar_width) for curr_x in x]
+                y, y_err = [], []
+                for numRange in allNumberRangesInOrder:
+                    if numRange in dataset[model]["aggregates"][tradeColumn][configPrefix]:
+                        y.append(dataset[model]["aggregates"][tradeColumn][configPrefix][numRange] * 100)
+                        if numRange in dataset[model]["standardDeviations"][tradeColumn][configPrefix]:
+                            y_err.append(dataset[model]["standardDeviations"][tradeColumn][configPrefix][numRange] * 100)
+                        else:
+                            y_err.append(0.0)
+                    else:
+                        y.append(0.0)
+                        y_err.append(0.0)
+                
+                axes.bar(bar_positions_control, y, color=interactionColors["trade"], label=tradeLabel, width=bar_width)
+                axes.errorbar(bar_positions_control, y, yerr=y_err, fmt="none", ecolor="black", capsize=10, elinewidth=2)
+            axes.legend(loc=positioning, labelspacing=0.1, frameon=True, fontsize=16, facecolor='white', framealpha=1.0)
+            axes.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(xmax=100))
+            modelOutfile = outfile.replace(".pdf", f"_{model}_model.pdf")
+            figure.savefig(configPrefix + "_" + modelOutfile, format="pdf", bbox_inches="tight")
+            matplotlib.pyplot.close(figure)
 
 def generateSimpleBarChart(dataset, configPrefixesWithExperimentalGroups, outfile, column, label, positioning, percentage=False, plotGroups=False, xlabel="Configuration"):
     # Loop through each config prefix, producing separate plots for each
