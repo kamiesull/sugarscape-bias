@@ -66,6 +66,60 @@ def findMedians(dataset):
                 dataset[model]["aggregates"][column][i] = median
     return dataset
 
+def findSameGroupInteractionProportionsAcrossTimesteps(dataset, model, rawData, configBasePrefix, configNumRange, experimentalGroup=None):
+    if experimentalGroup == None:
+        print(f"No experimental group specified. Skipping same-group interaction data processing for {configBasePrefix}-{configNumRange}.")
+        return
+    same_group_sums = {"lending": 0, "reproduction": 0, "trade": 0}
+    total_sums = {"lending": 0, "reproduction": 0, "trade": 0}
+    for item in rawData:
+        if int(item["timestep"]) > totalTimesteps:
+            break
+        
+        same_group_lending = item.get("lendingControlGroupToControlGroup", 0) + item.get("lendingExperimentalGroupToExperimentalGroup", 0)
+        same_group_reproduction = item.get("reproductionControlGroupToControlGroup", 0) + item.get("reproductionExperimentalGroupToExperimentalGroup", 0)
+        same_group_trade = item.get("tradeControlGroupToControlGroup", 0) + item.get("tradeExperimentalGroupToExperimentalGroup", 0)
+
+        same_group_sums["lending"] += same_group_lending
+        same_group_sums["reproduction"] += same_group_reproduction
+        same_group_sums["trade"] += same_group_trade
+
+        total_sums["lending"] += same_group_lending + item.get("lendingControlGroupToExperimentalGroup", 0) + item.get("lendingExperimentalGroupToControlGroup", 0)
+        total_sums["reproduction"] += same_group_reproduction + item.get("reproductionControlGroupToExperimentalGroup", 0) + item.get("reproductionExperimentalGroupToControlGroup", 0)
+        total_sums["trade"] += same_group_trade + item.get("tradeControlGroupToExperimentalGroup", 0) + item.get("tradeExperimentalGroupToControlGroup", 0)
+
+    # -1 represents no interactions of this type
+    lending_proportion = same_group_sums["lending"] / total_sums["lending"] if total_sums["lending"] > 0 else -1
+    reproduction_proportion = same_group_sums["reproduction"] / total_sums["reproduction"] if total_sums["reproduction"] > 0 else -1
+    trade_proportion = same_group_sums["trade"] / total_sums["trade"] if total_sums["trade"] > 0 else -1
+
+    if "lending_same_group_proportion" not in dataset[model]["metrics"]:
+        dataset[model]["metrics"]["lending_same_group_proportion"] = {}
+    if configBasePrefix not in dataset[model]["metrics"]["lending_same_group_proportion"]:
+        dataset[model]["metrics"]["lending_same_group_proportion"][configBasePrefix] = {}
+    if configNumRange not in dataset[model]["metrics"]["lending_same_group_proportion"][configBasePrefix]:
+        dataset[model]["metrics"]["lending_same_group_proportion"][configBasePrefix][configNumRange] = []
+    if lending_proportion is not None and lending_proportion != -1:
+        dataset[model]["metrics"]["lending_same_group_proportion"][configBasePrefix][configNumRange].append(lending_proportion)
+
+    if "reproduction_same_group_proportion" not in dataset[model]["metrics"]:
+        dataset[model]["metrics"]["reproduction_same_group_proportion"] = {}
+    if configBasePrefix not in dataset[model]["metrics"]["reproduction_same_group_proportion"]:
+        dataset[model]["metrics"]["reproduction_same_group_proportion"][configBasePrefix] = {}
+    if configNumRange not in dataset[model]["metrics"]["reproduction_same_group_proportion"][configBasePrefix]:
+        dataset[model]["metrics"]["reproduction_same_group_proportion"][configBasePrefix][configNumRange] = []
+    if reproduction_proportion is not None and reproduction_proportion != -1:
+        dataset[model]["metrics"]["reproduction_same_group_proportion"][configBasePrefix][configNumRange].append(reproduction_proportion)
+
+    if "trade_same_group_proportion" not in dataset[model]["metrics"]:
+        dataset[model]["metrics"]["trade_same_group_proportion"] = {}
+    if configBasePrefix not in dataset[model]["metrics"]["trade_same_group_proportion"]:
+        dataset[model]["metrics"]["trade_same_group_proportion"][configBasePrefix] = {}
+    if configNumRange not in dataset[model]["metrics"]["trade_same_group_proportion"][configBasePrefix]:
+        dataset[model]["metrics"]["trade_same_group_proportion"][configBasePrefix][configNumRange] = []
+    if trade_proportion is not None and trade_proportion != -1:
+        dataset[model]["metrics"]["trade_same_group_proportion"][configBasePrefix][configNumRange].append(trade_proportion)
+
 def findWeightedAverageAcrossTimesteps(dataset, model, rawData, entry, configBasePrefix, configNumRange, experimentalGroup=None):
     # If the column is in this list, we will do a weighted average by population (specific to control/experimental if doing these columns)
     # Otherwise, all timesteps are weighted the same regardless of population size
@@ -575,6 +629,8 @@ def parseDataset(path, dataset, totalTimesteps, statistic, configPrefixesWithExp
                 if entry in ["agentWealths", "agentTimesToLive", "agentTimesToLiveAgeLimited", "agentTotalMetabolism"]:
                     continue
                 findWeightedAverageAcrossTimesteps(dataset, model, rawData, entry, basePrefix, configNumRange, experimentalGroup=configPrefixesWithExperimentalGroups[basePrefix])
+            # Compute total proportions of same-group interactions for lending, reproduction, and trade for this config
+            findSameGroupInteractionProportionsAcrossTimesteps(dataset, model, rawData, basePrefix, configNumRange, experimentalGroup=configPrefixesWithExperimentalGroups[basePrefix])
         else:       
             i = 1
             for item in rawData:
