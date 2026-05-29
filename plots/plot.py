@@ -22,11 +22,11 @@ def findMeans(dataset):
     return dataset
 
 def findMeansByConfig(dataset):
-    print(f"Finding mean values across all timesteps by config")
+    print(f"Finding mean values by config")
     for model in dataset:
         if "metrics" not in dataset[model]:
             continue
-        # dataset[model]["aggregates"][column][configBasePrefix][configNumRange] = average across all timesteps and runs for this config and number range
+        # dataset[model]["aggregates"][column][configBasePrefix][configNumRange] = average across runs for this config and number range
         dataset[model]["aggregates"] = {}
         dataset[model]["standardDeviations"] = {}
         for column, configs in dataset[model]["metrics"].items():
@@ -37,10 +37,15 @@ def findMeansByConfig(dataset):
                 if configBasePrefix not in dataset[model]["aggregates"][column]:
                     dataset[model]["aggregates"][column][configBasePrefix] = {}
                     dataset[model]["standardDeviations"][column][configBasePrefix] = {}
-                for configNumRange, per_run_metrics in ranges.items():
-                    # Aggregate across runs within this config
-                    dataset[model]["standardDeviations"][column][configBasePrefix][configNumRange] = statistics.stdev(per_run_metrics) if len(per_run_metrics) > 1 else 0
-                    dataset[model]["aggregates"][column][configBasePrefix][configNumRange] = sum(per_run_metrics) / len(per_run_metrics) if per_run_metrics else None
+                for configNumRange, metrics in ranges.items():
+                    if not column.lower().endswith("extinctperconfig") and column != "runsPerConfig":
+                        # Aggregate across runs within this config
+                        dataset[model]["standardDeviations"][column][configBasePrefix][configNumRange] = statistics.stdev(metrics) if len(metrics) > 1 else 0
+                        dataset[model]["aggregates"][column][configBasePrefix][configNumRange] = sum(metrics) / len(metrics) if metrics else None
+                    elif column.lower().endswith("extinctperconfig") and dataset[model]["metrics"]["runsPerConfig"][configBasePrefix][configNumRange] > 0:
+                        # For extinction counts, divide by total runs per config to get extinction rate
+                        dataset[model]["aggregates"][column][configBasePrefix][configNumRange] = metrics / dataset[model]["metrics"]["runsPerConfig"][configBasePrefix][configNumRange]
+                        dataset[model]["standardDeviations"][column][configBasePrefix][configNumRange] = 0
     return dataset
 
 def findMedians(dataset):
@@ -218,6 +223,12 @@ def generatePlots(config, models, totalTimesteps, dataset, statistic, experiment
             generateSimpleBarChart(dataset, config.get("plotConfigPrefixesWithExperimentalGroups", {}), f"{statistic}_gini.pdf", "giniCoefficient", "Mean Gini Coefficient", "best", percentage=False, plotGroups=plotGroups, xlabel=xlabel)
         else:
             generateSimpleLinePlot(models, dataset, totalTimesteps, f"{statistic}_gini.pdf", "giniCoefficient", f"{titleStatistic} Gini Coefficient", "center right", percentage=False, experimentalGroup=experimentalGroup, plotGroups=plotGroups, xlabel=xlabel)
+    if "extinctions" in config["plots"]:
+        print(f"Generating {statistic} extinctions plot")
+        if statistic == "meansByConfig":
+            generateSimpleBarChart(dataset, config.get("plotConfigPrefixesWithExperimentalGroups", {}), f"{statistic}_extinctions.pdf", "extinctPerConfig", "Extinction Rate", "best", percentage=True, plotGroups=plotGroups, xlabel=xlabel)
+        else:
+            print(f"{statistic} extinctions plot function does not exist, skipping")
     if "happiness" in config["plots"]:
         print(f"Generating {statistic} happiness plot")
         if statistic == "meansByConfig":
@@ -575,7 +586,7 @@ def generateSimpleBarChart(dataset, configPrefixesWithExperimentalGroups, outfil
                             y_err.append(0.0)
                     
                     axes.bar(bar_positions_experimental, y, color=groupColors["experimental"], label=experimentalGroupLabel, width=bar_width)
-                    axes.errorbar(bar_positions_experimental, y, yerr=y_err, fmt="none", ecolor="black", capsize=10, elinewidth=2)
+                    axes.errorbar(bar_positions_experimental, y, yerr=y_err, fmt="none", ecolor="black", elinewidth=2)
                 if controlGroupColumn in dataset[model]["aggregates"]:
                     bar_positions_control = [curr_x + start_offset + bar_width for curr_x in x]
                     
@@ -592,7 +603,7 @@ def generateSimpleBarChart(dataset, configPrefixesWithExperimentalGroups, outfil
                             y_err.append(0.0)
                     
                     axes.bar(bar_positions_control, y, color=groupColors["control"], label=controlGroupLabel, width=bar_width)
-                    axes.errorbar(bar_positions_control, y, yerr=y_err, fmt="none", ecolor="black", capsize=10, elinewidth=2)
+                    axes.errorbar(bar_positions_control, y, yerr=y_err, fmt="none", ecolor="black", elinewidth=2)
                 axes.legend(loc=positioning, labelspacing=0.1, frameon=True, fontsize=16, facecolor='white', framealpha=1.0)
                 if percentage == True:
                     axes.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter())
@@ -739,6 +750,43 @@ def parseDataset(path, dataset, totalTimesteps, statistic, configPrefixesWithExp
                 findWeightedAverageAcrossTimesteps(dataset, model, rawData, entry, basePrefix, configNumRange, experimentalGroup=configPrefixesWithExperimentalGroups[basePrefix])
             # Compute total proportions of same-group interactions for lending, reproduction, and trade for this config
             findSameGroupInteractionProportionsAcrossTimesteps(dataset, model, rawData, basePrefix, configNumRange, experimentalGroup=configPrefixesWithExperimentalGroups[basePrefix])
+            
+            # Collect number of runs where control/experimental groups went extinct for each config prefix and number range
+            if configPrefixesWithExperimentalGroups[basePrefix] != None:
+                if "controlExtinctPerConfig" not in dataset[model]["metrics"]:
+                    dataset[model]["metrics"]["controlExtinctPerConfig"] = {}
+                if basePrefix not in dataset[model]["metrics"]["controlExtinctPerConfig"]:
+                    dataset[model]["metrics"]["controlExtinctPerConfig"][basePrefix] = {}
+                if configNumRange not in dataset[model]["metrics"]["controlExtinctPerConfig"][basePrefix]:
+                    dataset[model]["metrics"]["controlExtinctPerConfig"][basePrefix][configNumRange] = 0
+                if int(rawData[-1]["controlPopulation"]) == 0:
+                    dataset[model]["metrics"]["controlExtinctPerConfig"][basePrefix][configNumRange] += 1
+                
+                experimentalGroup = configPrefixesWithExperimentalGroups[basePrefix]
+                if f"{experimentalGroup}ExtinctPerConfig" not in dataset[model]["metrics"]:
+                    dataset[model]["metrics"][f"{experimentalGroup}ExtinctPerConfig"] = {}
+                if basePrefix not in dataset[model]["metrics"][f"{experimentalGroup}ExtinctPerConfig"]:
+                    dataset[model]["metrics"][f"{experimentalGroup}ExtinctPerConfig"][basePrefix] = {}
+                if configNumRange not in dataset[model]["metrics"][f"{experimentalGroup}ExtinctPerConfig"][basePrefix]:
+                    dataset[model]["metrics"][f"{experimentalGroup}ExtinctPerConfig"][basePrefix][configNumRange] = 0
+                if int(rawData[-1][f"{experimentalGroup}Population"]) == 0:
+                    dataset[model]["metrics"][f"{experimentalGroup}ExtinctPerConfig"][basePrefix][configNumRange] += 1
+            
+            if "extinctPerConfig" not in dataset[model]["metrics"]:
+                dataset[model]["metrics"]["extinctPerConfig"] = {}
+            if basePrefix not in dataset[model]["metrics"]["extinctPerConfig"]:
+                dataset[model]["metrics"]["extinctPerConfig"][basePrefix] = {}
+            if configNumRange not in dataset[model]["metrics"]["extinctPerConfig"][basePrefix]:
+                dataset[model]["metrics"]["extinctPerConfig"][basePrefix][configNumRange] = 0
+            dataset[model]["metrics"]["extinctPerConfig"][basePrefix][configNumRange] += 1
+
+            if "runsPerConfig" not in dataset[model]["metrics"]:
+                dataset[model]["metrics"]["runsPerConfig"] = {}
+            if basePrefix not in dataset[model]["metrics"]["runsPerConfig"]:
+                dataset[model]["metrics"]["runsPerConfig"][basePrefix] = {}
+            if configNumRange not in dataset[model]["metrics"]["runsPerConfig"][basePrefix]:
+                dataset[model]["metrics"]["runsPerConfig"][basePrefix][configNumRange] = 0
+            dataset[model]["metrics"]["runsPerConfig"][basePrefix][configNumRange] += 1
         else:       
             i = 1
             for item in rawData:
